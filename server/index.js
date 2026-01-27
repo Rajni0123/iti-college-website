@@ -12,7 +12,6 @@ const allowedOrigins = [
   'http://localhost:3000',
   'https://manerpvtiti.space',
   'https://www.manerpvtiti.space',
-  'https://api.manerpvtiti.space',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -174,7 +173,7 @@ app.use((req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   if (process.env.NODE_ENV === 'production') {
-    console.log(`API base URL: ${process.env.API_DOMAIN || 'https://api.manerpvtiti.space'}/api`);
+    console.log(`API base URL: ${process.env.API_DOMAIN || 'https://manerpvtiti.space'}/api`);
   } else {
     console.log(`API base URL: http://localhost:${PORT}/api`);
   }

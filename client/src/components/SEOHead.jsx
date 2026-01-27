@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const SEOHead = () => {
   const location = useLocation();
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
 
   useEffect(() => {
     // Fetch SEO settings from API

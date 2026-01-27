@@ -201,7 +201,7 @@ const TradeDetail = () => {
 
   const handleDownloadSyllabus = () => {
     if (trade?.syllabus_pdf) {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const baseUrl = apiUrl.replace('/api', '');
       window.open(`${baseUrl}${trade.syllabus_pdf}`, '_blank');
     } else {

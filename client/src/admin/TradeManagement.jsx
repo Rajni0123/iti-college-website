@@ -293,7 +293,7 @@ const TradeManagement = () => {
                     <FileText className="h-4 w-4 text-blue-600" />
                     <span className="text-xs text-blue-700 dark:text-blue-400">Syllabus PDF uploaded</span>
                     <a 
-                      href={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${trade.syllabus_pdf}`} 
+                      href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}${trade.syllabus_pdf}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="ml-auto text-xs text-blue-600 hover:underline"

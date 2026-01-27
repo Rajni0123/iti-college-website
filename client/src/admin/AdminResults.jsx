@@ -31,7 +31,8 @@ const AdminResults = () => {
 
   const fetchResults = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/results');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      const response = await axios.get(`${apiUrl}/results`);
       setResults(response.data);
     } catch (error) {
       console.error('Error fetching results:', error);
@@ -50,7 +51,8 @@ const AdminResults = () => {
     data.append('pdf', formData.pdf);
 
     try {
-      await axios.post('http://localhost:5000/api/admin/results', data, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      await axios.post(`${apiUrl}/admin/results`, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Result uploaded successfully');
@@ -67,7 +69,8 @@ const AdminResults = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      await axios.delete(`http://localhost:5000/api/admin/results/${id}`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      await axios.delete(`${apiUrl}/admin/results/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Result deleted successfully');
@@ -172,7 +175,7 @@ const AdminResults = () => {
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <a
-                            href={`http://localhost:5000/uploads/${result.pdf}`}
+                            href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${result.pdf}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 rounded-lg text-[#195de6] hover:bg-[#195de6]/10 transition-colors"

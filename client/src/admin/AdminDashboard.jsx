@@ -56,7 +56,7 @@ const AdminDashboard = () => {
       else setLoading(true);
       
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/stats`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api'}/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(response.data);

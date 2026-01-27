@@ -68,7 +68,7 @@ const ApplyAdmission = () => {
 
   const fetchSessions = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const response = await fetch(`${apiUrl}/sessions/active`);
       if (!response.ok) {
         if (response.status === 401) {
@@ -157,7 +157,7 @@ const ApplyAdmission = () => {
   const checkUidaiDuplicate = async (uidaiNumber) => {
     setUidaiCheckLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const response = await fetch(`${apiUrl}/admissions/check-uidai/${uidaiNumber}`);
       const data = await response.json();
       

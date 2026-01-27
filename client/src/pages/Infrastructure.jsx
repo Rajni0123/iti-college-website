@@ -87,7 +87,7 @@ const Infrastructure = () => {
               {gallery.map((item) => (
                 <div key={item.id} className="card p-0 overflow-hidden">
                   <img
-                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${item.image}`}
+                    src={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${item.image}`}
                     alt={item.category}
                     className="w-full h-64 object-cover"
                   />

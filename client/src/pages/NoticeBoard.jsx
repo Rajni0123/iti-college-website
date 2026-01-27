@@ -50,7 +50,7 @@ const NoticeBoard = () => {
                   </div>
                   {notice.pdf && (
                     <a
-                      href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${notice.pdf}`}
+                      href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${notice.pdf}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-primary-600 hover:text-primary-700"

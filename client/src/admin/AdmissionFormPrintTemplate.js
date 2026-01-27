@@ -38,7 +38,7 @@ export const generateAdmissionFormHTML = (student) => {
     <!-- Student Photo -->
     <div class="student-photo">
       ${student.photo ? 
-        `<img src="http://localhost:5000/uploads/${student.photo}" alt="Student Photo" onerror="this.parentElement.innerHTML='<div class=\\'student-photo-placeholder\\'>Photo Not Available</div>'">` : 
+        `<img src="${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${student.photo}" alt="Student Photo" onerror="this.parentElement.innerHTML='<div class=\\'student-photo-placeholder\\'>Photo Not Available</div>'">` : 
         `<div class="student-photo-placeholder">Photo Not Available</div>`
       }
     </div>

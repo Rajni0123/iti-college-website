@@ -32,7 +32,7 @@ const Sessions = () => {
         return;
       }
       
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const response = await axios.get(`${apiUrl}/sessions`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
@@ -64,7 +64,7 @@ const Sessions = () => {
         return;
       }
       
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const url = editingSession
         ? `${apiUrl}/sessions/${editingSession.id}`
         : `${apiUrl}/sessions`;
@@ -115,7 +115,7 @@ const Sessions = () => {
         return;
       }
       
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       await axios.delete(`${apiUrl}/sessions/${id}`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });

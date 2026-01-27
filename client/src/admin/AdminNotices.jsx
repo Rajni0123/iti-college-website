@@ -28,7 +28,8 @@ const AdminNotices = () => {
 
   const fetchNotices = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/notices');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      const response = await axios.get(`${apiUrl}/notices`);
       setNotices(response.data);
     } catch (error) {
       console.error('Error fetching notices:', error);
@@ -48,15 +49,16 @@ const AdminNotices = () => {
     }
 
     try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       if (editingNotice) {
         await axios.put(
-          `http://localhost:5000/api/admin/notices/${editingNotice.id}`,
+          `${apiUrl}/admin/notices/${editingNotice.id}`,
           data,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success('Notice updated successfully');
       } else {
-        await axios.post('http://localhost:5000/api/admin/notices', data, {
+        await axios.post(`${apiUrl}/admin/notices`, data, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Notice created successfully');
@@ -75,7 +77,8 @@ const AdminNotices = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      await axios.delete(`http://localhost:5000/api/admin/notices/${id}`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      await axios.delete(`${apiUrl}/admin/notices/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Notice deleted successfully');
@@ -181,7 +184,7 @@ const AdminNotices = () => {
                       </span>
                       {notice.pdf && (
                         <a
-                          href={`http://localhost:5000/uploads/${notice.pdf}`}
+                          href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${notice.pdf}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-[#195de6] hover:underline"

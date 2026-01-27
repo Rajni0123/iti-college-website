@@ -27,7 +27,7 @@ const FeeStructure = () => {
   };
 
   const handleDownload = () => {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
     window.open(`${API_URL}/settings/fee-structure/download`, '_blank');
   };
 

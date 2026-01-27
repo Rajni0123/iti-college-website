@@ -98,7 +98,7 @@ const Results = () => {
                 </div>
                 {result.pdf && (
                   <a
-                    href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${result.pdf}`}
+                    href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${result.pdf}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-primary flex items-center gap-2"

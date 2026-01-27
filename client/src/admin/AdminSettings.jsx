@@ -117,7 +117,7 @@ const AdminSettings = () => {
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       const response = await axios.get(`${apiUrl}/admin/settings`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -167,7 +167,7 @@ const AdminSettings = () => {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
       await axios.put(`${apiUrl}/admin/settings`, settings, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -570,7 +570,7 @@ const AdminSettings = () => {
                   </p>
                 </div>
                 <a
-                  href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/settings/fee-structure/download`}
+                  href={`${import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api'}/settings/fee-structure/download`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold text-sm hover:bg-green-700 transition-colors"
@@ -637,7 +637,7 @@ const AdminSettings = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <img
-                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/uploads/${faviconInfo.filename}`}
+                    src={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${faviconInfo.filename}`}
                     alt="Favicon Preview"
                     className="w-16 h-16 object-contain border border-slate-300 rounded"
                   />

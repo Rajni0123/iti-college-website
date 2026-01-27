@@ -28,7 +28,8 @@ const AdminGallery = () => {
 
   const fetchGallery = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/gallery');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      const response = await axios.get(`${apiUrl}/gallery`);
       setGallery(response.data);
     } catch (error) {
       console.error('Error fetching gallery:', error);
@@ -56,7 +57,8 @@ const AdminGallery = () => {
     data.append('image', formData.image);
 
     try {
-      await axios.post('http://localhost:5000/api/admin/gallery', data, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      await axios.post(`${apiUrl}/admin/gallery`, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Image uploaded successfully');
@@ -73,7 +75,8 @@ const AdminGallery = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      await axios.delete(`http://localhost:5000/api/admin/gallery/${id}`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api';
+      await axios.delete(`${apiUrl}/admin/gallery/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Image deleted successfully');
@@ -165,7 +168,7 @@ const AdminGallery = () => {
               >
                 <div className="aspect-square relative overflow-hidden bg-slate-100">
                   <img
-                    src={`http://localhost:5000/uploads/${item.image}`}
+                    src={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}/uploads/${item.image}`}
                     alt={item.category}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
