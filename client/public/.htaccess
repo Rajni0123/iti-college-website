@@ -2,10 +2,16 @@
   RewriteEngine On
   RewriteBase /
   
+  # Don't rewrite API requests
+  RewriteCond %{REQUEST_URI} !^/api/
+  
   # Handle React Router - serve index.html for all non-file requests
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.html [L]
+  
+  # Custom 404 for non-existent files (optional - React Router will handle)
+  ErrorDocument 404 /index.html
   
   # Enable GZIP compression
   <IfModule mod_deflate.c>
