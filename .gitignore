@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables (keep .env.production and .env.example)
+.env
+.env.local
+server/.env
+!server/.env.example
+!client/.env.production
+
+# Database
+*.sqlite
+*.db
+
+# Uploads
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Build outputs
+client/dist/
+client/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
