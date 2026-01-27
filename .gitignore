@@ -34,3 +34,8 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Generated deploy templates (created by deploy scripts)
+api.env.template
+public_html.env.template
+*.env.template
