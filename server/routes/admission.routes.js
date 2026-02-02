@@ -10,6 +10,7 @@ router.post('/', upload.fields([
   { name: 'photo', maxCount: 1 },
   { name: 'aadhaar', maxCount: 1 },
   { name: 'marksheet', maxCount: 1 },
+  { name: 'student_credit_card_doc', maxCount: 1 },
 ]), admissionController.applyAdmission);
 
 module.exports = router;

@@ -43,7 +43,7 @@ exports.checkUidaiAvailability = (req, res) => {
 };
 
 exports.applyAdmission = (req, res) => {
-  const { 
+  const {
     name, father_name, mother_name, mobile, email, trade, category,
     uidai_number, village_town_city, nearby, police_station, post_office,
     district, pincode, block, state, pwd_category, pwd_claim,
@@ -51,7 +51,8 @@ exports.applyAdmission = (req, res) => {
     class_10th_percentage, class_10th_subject,
     class_12th_school, class_12th_marks_obtained, class_12th_total_marks,
     class_12th_percentage, class_12th_subject,
-    session, shift, declaration
+    session, shift, declaration, dob, gender,
+    student_credit_card, student_credit_card_details, registration_type
   } = req.body;
   const files = req.files;
 
@@ -98,10 +99,14 @@ exports.applyAdmission = (req, res) => {
             photo: files.photo[0].filename,
             aadhaar: files.aadhaar[0].filename,
             marksheet: files.marksheet[0].filename,
+            student_credit_card_doc: files.student_credit_card_doc ? files.student_credit_card_doc[0].filename : null,
           };
 
           // Construct qualification summary from 10th details
           const qualification = class_10th_school ? `10th from ${class_10th_school}` : 'Not specified';
+
+          // Determine registration type based on student credit card selection
+          const regType = student_credit_card === 'Yes' ? 'Student Credit Card' : 'Regular';
 
           db.run(
             `INSERT INTO admissions (
@@ -110,10 +115,10 @@ exports.applyAdmission = (req, res) => {
               pwd_category, pwd_claim,
               class_10th_school, class_10th_marks_obtained, class_10th_total_marks, class_10th_percentage, class_10th_subject,
               class_12th_school, class_12th_marks_obtained, class_12th_total_marks, class_12th_percentage, class_12th_subject,
-              session, shift
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              session, shift, dob, gender, student_credit_card, student_credit_card_details, registration_type
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              name, father_name, mother_name || null, mobile, email || null, trade, qualification, category, 
+              name, father_name, mother_name || null, mobile, email || null, trade, qualification, category,
               JSON.stringify(documents), 'Pending',
               uidai_number || null, village_town_city || null, nearby || null, police_station || null,
               post_office || null, district || null, pincode || null, block || null, state || null,
@@ -122,7 +127,8 @@ exports.applyAdmission = (req, res) => {
               class_10th_percentage || null, class_10th_subject || null,
               class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
               class_12th_percentage || null, class_12th_subject || null,
-              session || null, shift || null
+              session || null, shift || null, dob || null, gender || null,
+              student_credit_card || 'No', student_credit_card_details || null, regType
             ],
             function (err) {
               if (err) {

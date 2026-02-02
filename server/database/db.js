@@ -109,6 +109,11 @@ const init = () => {
       shift TEXT,
       mis_iti_code TEXT DEFAULT 'PR10001156',
       declaration_agreed INTEGER DEFAULT 0,
+      dob TEXT,
+      gender TEXT,
+      student_credit_card TEXT DEFAULT 'No',
+      student_credit_card_details TEXT,
+      registration_type TEXT DEFAULT 'Regular',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (admission_id) REFERENCES admissions(id)
@@ -140,6 +145,11 @@ const init = () => {
     db.run(`ALTER TABLE students ADD COLUMN shift TEXT`, () => {});
     db.run(`ALTER TABLE students ADD COLUMN mis_iti_code TEXT DEFAULT 'PR10001156'`, () => {});
     db.run(`ALTER TABLE students ADD COLUMN declaration_agreed INTEGER DEFAULT 0`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN dob TEXT`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN gender TEXT`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN student_credit_card TEXT DEFAULT 'No'`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN student_credit_card_details TEXT`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN registration_type TEXT DEFAULT 'Regular'`, () => {});
 
     // Notices table
     db.run(`CREATE TABLE IF NOT EXISTS notices (
@@ -234,9 +244,14 @@ const init = () => {
       class_12th_subject TEXT,
       session TEXT,
       shift TEXT,
+      dob TEXT,
+      gender TEXT,
+      student_credit_card TEXT DEFAULT 'No',
+      student_credit_card_details TEXT,
+      registration_type TEXT DEFAULT 'Regular',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-    
+
     // Add new columns to existing admissions table if they don't exist
     db.run(`ALTER TABLE admissions ADD COLUMN mother_name TEXT`, () => {});
     db.run(`ALTER TABLE admissions ADD COLUMN uidai_number TEXT`, () => {});
@@ -262,6 +277,11 @@ const init = () => {
     db.run(`ALTER TABLE admissions ADD COLUMN class_12th_subject TEXT`, () => {});
     db.run(`ALTER TABLE admissions ADD COLUMN session TEXT`, () => {});
     db.run(`ALTER TABLE admissions ADD COLUMN shift TEXT`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN dob TEXT`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN gender TEXT`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN student_credit_card TEXT DEFAULT 'No'`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN student_credit_card_details TEXT`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN registration_type TEXT DEFAULT 'Regular'`, () => {});
 
     // Contact table
     db.run(`CREATE TABLE IF NOT EXISTS contact (

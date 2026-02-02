@@ -53,6 +53,10 @@ const ApplyAdmission = () => {
     photo: null,
     aadhaar: null,
     marksheet: null,
+    student_credit_card_doc: null,
+    student_credit_card: 'No',
+    student_credit_card_bank: '',
+    student_credit_card_account: '',
     declaration: false,
   });
 
@@ -253,11 +257,23 @@ const ApplyAdmission = () => {
     setLoading(true);
     try {
       const data = new FormData();
+      // Pack student credit card details as JSON
+      const creditCardDetails = formData.student_credit_card === 'Yes' ? JSON.stringify({
+        bank_name: formData.student_credit_card_bank,
+        account_number: formData.student_credit_card_account,
+      }) : null;
+
       Object.keys(formData).forEach((key) => {
-        if (key !== 'declaration' && formData[key] !== null) {
+        if (key === 'declaration') return;
+        if (key === 'student_credit_card_bank' || key === 'student_credit_card_account') return;
+        if (formData[key] !== null) {
           data.append(key, formData[key]);
         }
       });
+      if (creditCardDetails) {
+        data.append('student_credit_card_details', creditCardDetails);
+      }
+      data.append('registration_type', formData.student_credit_card === 'Yes' ? 'Student Credit Card' : 'Regular');
       data.append('declaration', formData.declaration);
 
       const response = await applyAdmission(data);
@@ -1073,6 +1089,51 @@ const ApplyAdmission = () => {
                           </p>
                         </div>
                       )}
+
+                      {/* Student Credit Card Section */}
+                      <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-xl p-5">
+                        <h3 className="font-semibold text-[#0e121b] dark:text-white mb-4">Student Credit Card</h3>
+                        <div className="space-y-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[#0e121b] dark:text-white text-base font-medium">Are you applying through Student Credit Card?</label>
+                            <select
+                              name="student_credit_card"
+                              value={formData.student_credit_card}
+                              onChange={handleChange}
+                              className="w-full rounded-lg text-[#0e121b] dark:text-white border border-[#d0d7e7] dark:border-gray-700 bg-white dark:bg-[#111621] focus:ring-2 focus:ring-[#195de6]/20 focus:border-[#195de6] h-12 px-4 text-base outline-none transition-all"
+                            >
+                              <option value="No">No</option>
+                              <option value="Yes">Yes</option>
+                            </select>
+                          </div>
+                          {formData.student_credit_card === 'Yes' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="flex flex-col gap-2">
+                                <label className="text-[#0e121b] dark:text-white text-sm font-medium">Bank Name <span className="text-red-500">*</span></label>
+                                <input
+                                  type="text"
+                                  name="student_credit_card_bank"
+                                  value={formData.student_credit_card_bank}
+                                  onChange={handleChange}
+                                  placeholder="e.g., State Bank of India"
+                                  className="w-full rounded-lg text-[#0e121b] dark:text-white border border-[#d0d7e7] dark:border-gray-700 bg-white dark:bg-[#111621] focus:ring-2 focus:ring-[#195de6]/20 focus:border-[#195de6] h-12 px-4 text-base outline-none transition-all"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                <label className="text-[#0e121b] dark:text-white text-sm font-medium">Account/Reference Number</label>
+                                <input
+                                  type="text"
+                                  name="student_credit_card_account"
+                                  value={formData.student_credit_card_account}
+                                  onChange={handleChange}
+                                  placeholder="Account or reference number"
+                                  className="w-full rounded-lg text-[#0e121b] dark:text-white border border-[#d0d7e7] dark:border-gray-700 bg-white dark:bg-[#111621] focus:ring-2 focus:ring-[#195de6]/20 focus:border-[#195de6] h-12 px-4 text-base outline-none transition-all"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}
@@ -1183,6 +1244,42 @@ const ApplyAdmission = () => {
                           </label>
                         </div>
                       </div>
+
+                      {/* Student Credit Card Document Upload */}
+                      {formData.student_credit_card === 'Yes' && (
+                        <div className="mt-4">
+                          <p className="text-sm font-medium text-[#0e121b] dark:text-white mb-3">Student Credit Card Document</p>
+                          <div className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-colors cursor-pointer group max-w-xs ${
+                            formData.student_credit_card_doc
+                              ? 'border-green-400 bg-green-50 dark:bg-green-900/10'
+                              : 'border-[#d0d7e7] dark:border-gray-700 bg-[#f8f9fc] dark:bg-[#111621] hover:border-[#195de6]'
+                          }`}>
+                            <label className="cursor-pointer w-full">
+                              <input
+                                type="file"
+                                name="student_credit_card_doc"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={handleChange}
+                                className="hidden"
+                              />
+                              {formData.student_credit_card_doc ? (
+                                <>
+                                  <CheckCircle className="h-10 w-10 text-green-500 mx-auto mb-2" />
+                                  <p className="text-sm font-semibold text-green-700 dark:text-green-400">Uploaded!</p>
+                                  <p className="text-xs text-green-600 dark:text-green-500 mt-1 truncate max-w-full px-2">{formData.student_credit_card_doc.name}</p>
+                                </>
+                              ) : (
+                                <>
+                                  <FileText className="h-10 w-10 text-gray-400 group-hover:text-[#195de6] mx-auto mb-2 transition-colors" />
+                                  <p className="text-sm font-semibold text-[#0e121b] dark:text-white">Credit Card Document</p>
+                                  <p className="text-xs text-gray-500 mt-1">PDF/JPG (Optional)</p>
+                                  <p className="text-xs text-[#195de6] mt-2 font-medium">Click to upload</p>
+                                </>
+                              )}
+                            </label>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                         <p className="text-sm text-amber-800 dark:text-amber-400 flex items-start gap-2">

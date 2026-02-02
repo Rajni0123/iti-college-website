@@ -619,7 +619,17 @@ exports.updateAdmissionStatus = (req, res) => {
 // Update admission details
 exports.updateAdmission = (req, res) => {
   const { id } = req.params;
-  const { name, father_name, mobile, email, trade, qualification, category, status, has_photo, has_aadhaar, has_marksheet } = req.body;
+  const {
+    name, father_name, mother_name, mobile, email, trade, qualification, category, status,
+    has_photo, has_aadhaar, has_marksheet,
+    dob, gender, uidai_number, village_town_city, nearby, police_station, post_office,
+    district, pincode, block, state, pwd_category, pwd_claim,
+    class_10th_school, class_10th_marks_obtained, class_10th_total_marks,
+    class_10th_percentage, class_10th_subject,
+    class_12th_school, class_12th_marks_obtained, class_12th_total_marks,
+    class_12th_percentage, class_12th_subject,
+    session, shift, student_credit_card, student_credit_card_details, registration_type
+  } = req.body;
 
   if (!name || !father_name || !mobile || !trade || !qualification || !category) {
     return res.status(400).json({ message: 'Name, father name, mobile, trade, qualification, and category are required' });
@@ -659,8 +669,25 @@ exports.updateAdmission = (req, res) => {
     };
 
     // Build update query dynamically
-    let updateQuery = 'UPDATE admissions SET name = ?, father_name = ?, mobile = ?, email = ?, trade = ?, qualification = ?, category = ?, documents = ?';
-    const params = [name, father_name, mobile, email || null, trade, qualification, category, JSON.stringify(updatedDocs)];
+    let updateQuery = `UPDATE admissions SET name = ?, father_name = ?, mother_name = ?, mobile = ?, email = ?, trade = ?, qualification = ?, category = ?, documents = ?,
+      dob = ?, gender = ?, uidai_number = ?, village_town_city = ?, nearby = ?, police_station = ?, post_office = ?,
+      district = ?, pincode = ?, block = ?, state = ?, pwd_category = ?, pwd_claim = ?,
+      class_10th_school = ?, class_10th_marks_obtained = ?, class_10th_total_marks = ?, class_10th_percentage = ?, class_10th_subject = ?,
+      class_12th_school = ?, class_12th_marks_obtained = ?, class_12th_total_marks = ?, class_12th_percentage = ?, class_12th_subject = ?,
+      session = ?, shift = ?, student_credit_card = ?, student_credit_card_details = ?, registration_type = ?`;
+    const params = [
+      name, father_name, mother_name || null, mobile, email || null, trade, qualification, category, JSON.stringify(updatedDocs),
+      dob || null, gender || null, uidai_number || null,
+      village_town_city || null, nearby || null, police_station || null, post_office || null,
+      district || null, pincode || null, block || null, state || null,
+      pwd_category || null, pwd_claim || 'No',
+      class_10th_school || null, class_10th_marks_obtained || null, class_10th_total_marks || null,
+      class_10th_percentage || null, class_10th_subject || null,
+      class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
+      class_12th_percentage || null, class_12th_subject || null,
+      session || null, shift || null,
+      student_credit_card || 'No', student_credit_card_details || null, registration_type || 'Regular'
+    ];
 
     if (normalizedStatus) {
       updateQuery += ', status = ?';
@@ -749,42 +776,68 @@ exports.downloadDocument = (req, res) => {
 // Manual admission entry
 exports.createManualAdmission = (req, res) => {
   try {
-    const { name, father_name, mobile, email, trade, qualification, category, status } = req.body;
-
-    console.log('Manual admission request:', { name, father_name, mobile, email, trade, qualification, category, status });
+    const {
+      name, father_name, mother_name, mobile, email, trade, qualification, category, status,
+      dob, gender, uidai_number, village_town_city, nearby, police_station, post_office,
+      district, pincode, block, state, pwd_category, pwd_claim,
+      class_10th_school, class_10th_marks_obtained, class_10th_total_marks,
+      class_10th_percentage, class_10th_subject,
+      class_12th_school, class_12th_marks_obtained, class_12th_total_marks,
+      class_12th_percentage, class_12th_subject,
+      session, shift, student_credit_card, student_credit_card_details, registration_type
+    } = req.body;
 
     if (!name || !father_name || !mobile || !trade || !qualification || !category) {
       return res.status(400).json({ message: 'Name, father name, mobile, trade, qualification, and category are required' });
     }
 
-    // Create empty documents object for manual entries
     const documents = JSON.stringify({
       photo: null,
       aadhaar: null,
       marksheet: null,
+      student_credit_card_doc: null,
     });
 
-    // Normalize status like in update function
-    const admissionStatus = status 
+    const admissionStatus = status
       ? (status.charAt(0).toUpperCase() + status.slice(1).toLowerCase())
       : 'Pending';
 
+    const regType = student_credit_card === 'Yes' ? 'Student Credit Card' : (registration_type || 'Regular');
+
     db.run(
-      'INSERT INTO admissions (name, father_name, mobile, email, trade, qualification, category, documents, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, father_name, mobile, email || null, trade, qualification, category, documents, admissionStatus],
+      `INSERT INTO admissions (
+        name, father_name, mother_name, mobile, email, trade, qualification, category, documents, status,
+        dob, gender, uidai_number, village_town_city, nearby, police_station, post_office, district, pincode, block, state,
+        pwd_category, pwd_claim,
+        class_10th_school, class_10th_marks_obtained, class_10th_total_marks, class_10th_percentage, class_10th_subject,
+        class_12th_school, class_12th_marks_obtained, class_12th_total_marks, class_12th_percentage, class_12th_subject,
+        session, shift, student_credit_card, student_credit_card_details, registration_type
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name, father_name, mother_name || null, mobile, email || null, trade, qualification, category,
+        documents, admissionStatus,
+        dob || null, gender || null, uidai_number || null,
+        village_town_city || null, nearby || null, police_station || null, post_office || null,
+        district || null, pincode || null, block || null, state || null,
+        pwd_category || null, pwd_claim || 'No',
+        class_10th_school || null, class_10th_marks_obtained || null, class_10th_total_marks || null,
+        class_10th_percentage || null, class_10th_subject || null,
+        class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
+        class_12th_percentage || null, class_12th_subject || null,
+        session || null, shift || null,
+        student_credit_card || 'No', student_credit_card_details || null, regType
+      ],
       function (err) {
         if (err) {
           console.error('Database error creating manual admission:', err);
-          return res.status(500).json({ 
+          return res.status(500).json({
             message: 'Failed to create admission',
-            error: err.message 
+            error: err.message
           });
         }
-        
+
         const admissionId = this.lastID;
-        console.log('Manual admission created successfully with ID:', admissionId);
-        
-        // If status is Approved, also create student record
+
         if (admissionStatus === 'Approved') {
           const currentYear = new Date().getFullYear();
           const academicYear = `${currentYear}-${currentYear + 1}`;
@@ -793,12 +846,27 @@ exports.createManualAdmission = (req, res) => {
             `INSERT INTO students (
               admission_id, student_name, father_name, mother_name, mobile, email,
               trade, enrollment_number, admission_date, qualification, category,
-              address, photo, status, academic_year
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              address, photo, status, academic_year,
+              dob, gender, uidai_number, village_town_city, nearby, police_station, post_office,
+              district, pincode, block, state, pwd_category, pwd_claim,
+              class_10th_school, class_10th_marks_obtained, class_10th_total_marks, class_10th_percentage, class_10th_subject,
+              class_12th_school, class_12th_marks_obtained, class_12th_total_marks, class_12th_percentage, class_12th_subject,
+              session, shift, student_credit_card, student_credit_card_details, registration_type
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              admissionId, name, father_name, null, mobile, email || null,
+              admissionId, name, father_name, mother_name || null, mobile, email || null,
               trade, null, new Date().toISOString().split('T')[0],
-              qualification, category, null, null, 'Active', academicYear
+              qualification, category, null, null, 'Active', academicYear,
+              dob || null, gender || null, uidai_number || null,
+              village_town_city || null, nearby || null, police_station || null, post_office || null,
+              district || null, pincode || null, block || null, state || null,
+              pwd_category || null, pwd_claim || 'No',
+              class_10th_school || null, class_10th_marks_obtained || null, class_10th_total_marks || null,
+              class_10th_percentage || null, class_10th_subject || null,
+              class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
+              class_12th_percentage || null, class_12th_subject || null,
+              session || null, shift || null,
+              student_credit_card || 'No', student_credit_card_details || null, regType
             ],
             function(err) {
               if (err) {
@@ -808,7 +876,6 @@ exports.createManualAdmission = (req, res) => {
                   applicationId: admissionId,
                 });
               }
-              console.log(`Student record created (ID: ${this.lastID}) for approved manual admission ${admissionId}`);
               res.json({
                 message: 'Admission created and approved! Student record created.',
                 applicationId: admissionId,
@@ -826,9 +893,9 @@ exports.createManualAdmission = (req, res) => {
     );
   } catch (error) {
     console.error('Unexpected error in createManualAdmission:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Failed to create admission',
-      error: error.message 
+      error: error.message
     });
   }
 };
