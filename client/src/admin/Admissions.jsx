@@ -17,7 +17,7 @@ import {
   Printer,
   Edit
 } from 'lucide-react';
-import { getAdmissions, updateAdmissionStatus, updateAdmission, downloadDocument, createManualAdmission } from '../services/api';
+import { getAdmissions, updateAdmissionStatus, updateAdmission, downloadDocument, createManualAdmission, createFee, payFee } from '../services/api';
 import toast from 'react-hot-toast';
 
 const defaultManualFormData = {
@@ -33,7 +33,8 @@ const defaultManualFormData = {
   class_12th_percentage: '', class_12th_subject: '',
   student_credit_card: 'No', student_credit_card_bank: '', student_credit_card_account: '',
   registration_type: 'Regular', status: 'Pending',
-  state_registration: '', central_registration: ''
+  state_registration: '', central_registration: '',
+  total_fee: '', advance_amount: '', installments: '0', due_amount: ''
 };
 
 const defaultEditFormData = {
@@ -286,7 +287,50 @@ const Admissions = () => {
       console.log('Submitting manual admission:', submitData);
       const response = await createManualAdmission(submitData);
       console.log('Response:', response);
-      toast.success(response.data?.message || 'Admission created successfully');
+
+      // If fee details were provided, create a fee record
+      const totalFee = parseFloat(manualFormData.total_fee);
+      if (totalFee > 0) {
+        try {
+          const admissionId = response.data?.id || null;
+          const advanceAmount = parseFloat(manualFormData.advance_amount) || 0;
+          const numInstallments = parseInt(manualFormData.installments) || 0;
+          const dueAmount = totalFee - advanceAmount;
+
+          const feePayload = {
+            admission_id: admissionId,
+            student_name: manualFormData.name,
+            father_name: manualFormData.father_name,
+            mobile: manualFormData.mobile,
+            trade: manualFormData.trade,
+            fee_type: 'Admission Fee',
+            amount: totalFee,
+            installment_enabled: numInstallments > 0,
+            total_installments: numInstallments > 0 ? numInstallments : 1,
+            academic_year: manualFormData.session || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`
+          };
+
+          // Create fee record
+          const feeRes = await createFee(feePayload);
+
+          // If advance was paid, record payment
+          if (advanceAmount > 0 && feeRes.data?.id) {
+            await payFee(feeRes.data.id, {
+              paid_amount: advanceAmount,
+              payment_method: 'Cash',
+              payment_date: new Date().toISOString().split('T')[0]
+            });
+          }
+
+          toast.success(`Admission created with fee record (₹${totalFee.toLocaleString()}, Advance: ₹${advanceAmount.toLocaleString()})`);
+        } catch (feeError) {
+          console.error('Fee creation error:', feeError);
+          toast.success('Admission created, but fee record failed to create');
+        }
+      } else {
+        toast.success(response.data?.message || 'Admission created successfully');
+      }
+
       setShowManualEntryModal(false);
       setManualFormData({ ...defaultManualFormData });
       fetchAdmissions();
@@ -2099,6 +2143,60 @@ const Admissions = () => {
                     </>
                   )}
                 </div>
+              </div>
+
+              {/* Fee Details */}
+              <div>
+                <h4 className={sectionHeaderCls}>Fee Details</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className={labelCls}>Total Fee (₹)</label>
+                    <input type="number" min="0" step="1" value={manualFormData.total_fee}
+                      onChange={(e) => {
+                        const totalFee = e.target.value;
+                        const advance = manualFormData.advance_amount || '0';
+                        const due = Math.max(0, (parseFloat(totalFee) || 0) - (parseFloat(advance) || 0));
+                        setManualFormData({ ...manualFormData, total_fee: totalFee, due_amount: due > 0 ? due.toString() : '0' });
+                      }}
+                      className={inputCls} placeholder="Total fee amount" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Advance Amount (₹)</label>
+                    <input type="number" min="0" step="1" value={manualFormData.advance_amount}
+                      onChange={(e) => {
+                        const advance = e.target.value;
+                        const totalFee = manualFormData.total_fee || '0';
+                        const due = Math.max(0, (parseFloat(totalFee) || 0) - (parseFloat(advance) || 0));
+                        setManualFormData({ ...manualFormData, advance_amount: advance, due_amount: due > 0 ? due.toString() : '0' });
+                      }}
+                      className={inputCls} placeholder="Advance paid" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Installments</label>
+                    <select value={manualFormData.installments}
+                      onChange={(e) => setManualFormData({ ...manualFormData, installments: e.target.value })}
+                      className={inputCls}>
+                      <option value="0">No Installment</option>
+                      <option value="2">2 Installments</option>
+                      <option value="3">3 Installments</option>
+                      <option value="4">4 Installments</option>
+                      <option value="6">6 Installments</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Due Amount (₹)</label>
+                    <input type="text" readOnly
+                      value={manualFormData.due_amount ? `₹${parseFloat(manualFormData.due_amount).toLocaleString()}` : '₹0'}
+                      className={`${inputCls} bg-slate-200 dark:bg-slate-700 cursor-not-allowed font-semibold text-red-600 dark:text-red-400`} />
+                  </div>
+                </div>
+                {parseFloat(manualFormData.due_amount) > 0 && parseInt(manualFormData.installments) > 0 && (
+                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-600 font-medium">
+                      Each installment: ₹{(parseFloat(manualFormData.due_amount) / parseInt(manualFormData.installments)).toLocaleString(undefined, { maximumFractionDigits: 0 })} x {manualFormData.installments} installments
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}

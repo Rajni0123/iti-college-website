@@ -12,6 +12,12 @@ router.get('/summary', feeController.getFeeSummary);
 // Recent payments (last 7 days) - must be before /:id route
 router.get('/recent-payments', feeController.getRecentPayments);
 
+// Student search for autocomplete - must be before /:id route
+router.get('/search-students', feeController.searchStudents);
+
+// Student fee balance
+router.get('/student-balance/:admission_id', feeController.getStudentFeeBalance);
+
 // Main fee CRUD
 router.get('/', feeController.getFees);
 router.get('/:id', feeController.getFeeById);

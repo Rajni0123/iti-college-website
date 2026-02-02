@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Edit, Trash2, DollarSign, Receipt, FileText, X, Search,
   CreditCard, Calendar, Users, TrendingUp, AlertCircle, CheckCircle,
@@ -36,7 +36,16 @@ const FeeManagement = () => {
     address: 'Maner, Mahinawan, Near Vishwakarma Mandir, Maner, Patna - 801108'
   });
   
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [studentSearchResults, setStudentSearchResults] = useState([]);
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentBalance, setStudentBalance] = useState(null);
+  const studentSearchRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
+
   const [formData, setFormData] = useState({
+    admission_id: null,
     student_name: '',
     father_name: '',
     mobile: '',
@@ -84,6 +93,61 @@ const FeeManagement = () => {
     }
   };
 
+  // Close student dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (studentSearchRef.current && !studentSearchRef.current.contains(event.target)) {
+        setShowStudentDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const searchStudents = async (query) => {
+    if (query.trim().length < 2) {
+      setStudentSearchResults([]);
+      setShowStudentDropdown(false);
+      return;
+    }
+    try {
+      const response = await api.get(`/fees/search-students?q=${encodeURIComponent(query)}`);
+      setStudentSearchResults(response.data || []);
+      setShowStudentDropdown(true);
+    } catch (error) {
+      console.error('Error searching students:', error);
+    }
+  };
+
+  const handleStudentSearchInput = (value) => {
+    setStudentSearchQuery(value);
+    setFormData({ ...formData, student_name: value });
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => searchStudents(value), 300);
+  };
+
+  const handleSelectStudent = async (student) => {
+    setSelectedStudent(student);
+    setStudentSearchQuery(student.student_name);
+    setShowStudentDropdown(false);
+    setFormData({
+      ...formData,
+      admission_id: student.admission_id,
+      student_name: student.student_name,
+      father_name: student.father_name || '',
+      mobile: student.mobile || '',
+      trade: student.trade || ''
+    });
+
+    // Fetch student fee balance
+    try {
+      const response = await api.get(`/fees/student-balance/${student.admission_id}`);
+      setStudentBalance(response.data);
+    } catch (error) {
+      console.error('Error fetching student balance:', error);
+    }
+  };
+
   const fetchFees = async () => {
     try {
       setLoading(true);
@@ -125,6 +189,7 @@ const FeeManagement = () => {
 
     try {
       const feeData = {
+        admission_id: formData.admission_id || null,
         student_name: formData.student_name.trim(),
         father_name: formData.father_name?.trim() || null,
         mobile: formData.mobile?.trim() || null,
@@ -279,7 +344,13 @@ const FeeManagement = () => {
 
   const closeModal = () => {
     setShowModal(false);
+    setSelectedStudent(null);
+    setStudentBalance(null);
+    setStudentSearchQuery('');
+    setStudentSearchResults([]);
+    setShowStudentDropdown(false);
     setFormData({
+      admission_id: null,
       student_name: '',
       father_name: '',
       mobile: '',
@@ -354,7 +425,7 @@ const FeeManagement = () => {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#195de6] text-white text-sm font-bold shadow-lg hover:bg-[#1e40af] transition-colors"
             >
               <Plus className="h-4 w-4" />
-              Add Fee Record
+              Collect Fee
             </button>
           </div>
         </div>
@@ -536,27 +607,98 @@ const FeeManagement = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Add Fee Record</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Collect Fee</h3>
               <button onClick={closeModal} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              {/* Student Information */}
+              {/* Student Information with Autocomplete */}
               <div className="space-y-4">
                 <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Student Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Student Name *</label>
+
+                {/* Student Name Autocomplete */}
+                <div className="relative" ref={studentSearchRef}>
+                  <label className="block text-sm font-medium mb-2">Student Name * <span className="text-xs text-slate-400 font-normal">(Type to search)</span></label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <input
                       type="text"
                       required
-                      value={formData.student_name}
-                      onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm"
-                      placeholder="Enter student name"
+                      value={studentSearchQuery || formData.student_name}
+                      onChange={(e) => handleStudentSearchInput(e.target.value)}
+                      onFocus={() => { if (studentSearchResults.length > 0) setShowStudentDropdown(true); }}
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm"
+                      placeholder="Type student name to search..."
                     />
                   </div>
+
+                  {/* Search Results Dropdown */}
+                  {showStudentDropdown && studentSearchResults.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                      {studentSearchResults.map((student) => (
+                        <button
+                          key={student.admission_id}
+                          type="button"
+                          onClick={() => handleSelectStudent(student)}
+                          className="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 last:border-b-0 transition-colors"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-medium text-slate-900 dark:text-white">{student.student_name}</p>
+                              <p className="text-xs text-slate-500">S/O {student.father_name} | {student.trade} | {student.mobile}</p>
+                            </div>
+                            {student.total_due_balance > 0 && (
+                              <span className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                                Due: ₹{student.total_due_balance.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Student Info Card */}
+                {selectedStudent && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-blue-600 uppercase">Selected Student</span>
+                      <button type="button" onClick={() => {
+                        setSelectedStudent(null);
+                        setStudentBalance(null);
+                        setStudentSearchQuery('');
+                        setFormData({ ...formData, admission_id: null, student_name: '', father_name: '', mobile: '', trade: '' });
+                      }} className="text-xs text-blue-500 hover:text-blue-700">Clear</button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div><span className="text-slate-500">Name:</span> <span className="font-medium">{selectedStudent.student_name}</span></div>
+                      <div><span className="text-slate-500">Father:</span> <span className="font-medium">{selectedStudent.father_name}</span></div>
+                      <div><span className="text-slate-500">Mobile:</span> <span className="font-medium">{selectedStudent.mobile}</span></div>
+                      <div><span className="text-slate-500">Trade:</span> <span className="font-medium">{selectedStudent.trade}</span></div>
+                    </div>
+                    {studentBalance && (
+                      <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 grid grid-cols-3 gap-2 text-sm">
+                        <div>
+                          <p className="text-xs text-slate-500">Total Fees</p>
+                          <p className="font-semibold text-slate-900 dark:text-white">₹{studentBalance.total_fees.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500">Paid</p>
+                          <p className="font-semibold text-green-600">₹{studentBalance.total_paid.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500">Due Balance</p>
+                          <p className="font-semibold text-red-600">₹{studentBalance.total_due.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Other student fields (editable, auto-filled) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Father's Name</label>
                     <input
@@ -564,7 +706,7 @@ const FeeManagement = () => {
                       value={formData.father_name}
                       onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
                       className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm"
-                      placeholder="Enter father's name"
+                      placeholder="Auto-filled on student select"
                     />
                   </div>
                   <div>
@@ -574,7 +716,7 @@ const FeeManagement = () => {
                       value={formData.mobile}
                       onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                       className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm"
-                      placeholder="Enter mobile number"
+                      placeholder="Auto-filled on student select"
                     />
                   </div>
                   <div>
@@ -741,7 +883,7 @@ const FeeManagement = () => {
               {/* Actions */}
               <div className="flex gap-3 pt-4">
                 <button type="submit" className="flex-1 px-4 py-3 rounded-xl bg-[#195de6] text-white font-bold hover:bg-[#1e40af] transition-colors">
-                  Create Fee Record
+                  Collect Fee
                 </button>
                 <button type="button" onClick={closeModal} className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                   Cancel
@@ -1001,7 +1143,10 @@ const FeeManagement = () => {
                 font-size: 1rem !important;
               }
               .receipt-print .font-bold {
-                font-weight: 600 !important;
+                font-weight: 500 !important;
+              }
+              .receipt-print .font-semibold {
+                font-weight: 500 !important;
               }
               .receipt-print .text-sm {
                 font-size: 0.75rem !important;
@@ -1158,55 +1303,57 @@ const FeeManagement = () => {
                   </div>
 
                   {/* Student Information Card */}
-                  <div className="bg-slate-50 rounded-lg p-6 mb-10 border border-slate-100">
-                    <div className="grid grid-cols-2 gap-y-4 gap-x-8">
-                      {/* Left Column */}
+                  <div className="bg-slate-50 rounded-lg p-6 mb-8 border border-slate-100">
+                    <div className="grid grid-cols-2 gap-y-3 gap-x-8">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Student Name</label>
-                        <p className="text-lg font-semibold text-slate-900">{selectedFee.student_name}</p>
+                        <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Student Name</label>
+                        <p className="text-sm font-medium text-slate-900">{selectedFee.student_name}</p>
                       </div>
-                      {/* Right Column */}
                       {selectedFee.father_name && (
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Father's Name (S/O)</label>
-                          <p className="text-slate-700 text-sm">{selectedFee.father_name}</p>
+                          <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Father's Name (S/O)</label>
+                          <p className="text-sm text-slate-700">{selectedFee.father_name}</p>
                         </div>
                       )}
-                      {/* Left Column - Second Row */}
                       {selectedFee.mobile && (
                         <div>
-                          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Mobile Number</label>
-                          <p className="text-slate-700 text-sm">+91 {selectedFee.mobile}</p>
+                          <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Mobile Number</label>
+                          <p className="text-sm text-slate-700">+91 {selectedFee.mobile}</p>
                         </div>
                       )}
-                      {/* Right Column - Second Row */}
                       <div>
-                        <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Trade</label>
-                        <p className="text-slate-700 font-medium text-sm">{selectedFee.trade}</p>
+                        <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">Trade</label>
+                        <p className="text-sm font-medium text-slate-700">{selectedFee.trade}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Payment Table */}
-                  <div className="mb-12">
+                  <div className="mb-8">
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b border-slate-200">
-                          <th className="py-3 font-semibold text-slate-500">Description</th>
-                          <th className="py-3 font-semibold text-slate-500 text-right">Amount</th>
+                          <th className="py-3 font-medium text-slate-500 text-sm">Description</th>
+                          <th className="py-3 font-medium text-slate-500 text-sm text-right">Amount</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         <tr>
-                          <td className="py-4 text-slate-700">{selectedFee.fee_type}</td>
-                          <td className="py-4 text-slate-900 text-right">₹{selectedFee.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
+                          <td className="py-3 text-slate-700 text-sm">{selectedFee.fee_type}</td>
+                          <td className="py-3 text-slate-900 text-sm text-right">₹{selectedFee.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
                         </tr>
                       </tbody>
                       <tfoot>
                         <tr className="border-t-2 border-slate-900">
-                          <td className="py-4 text-lg font-bold text-slate-900">Paid Amount</td>
-                          <td className="py-4 text-2xl font-bold text-[#1e3a8a] text-right">₹{(selectedFee.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className="py-3 text-base font-semibold text-slate-900">Total Paid</td>
+                          <td className="py-3 text-lg font-semibold text-[#1e3a8a] text-right">₹{(selectedFee.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                         </tr>
+                        {(selectedFee.amount - (selectedFee.paid_amount || 0)) > 0 && (
+                          <tr>
+                            <td className="py-2 text-sm font-medium text-red-600">Due Balance</td>
+                            <td className="py-2 text-sm font-semibold text-red-600 text-right">₹{(selectedFee.amount - (selectedFee.paid_amount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          </tr>
+                        )}
                       </tfoot>
                     </table>
                   </div>
@@ -1285,29 +1432,25 @@ const FeeManagement = () => {
               {/* Student Information Card */}
               <div className="bg-slate-50 rounded-lg p-6 mb-10 border border-slate-100" style={{ backgroundColor: '#f8fafc', borderRadius: '0.5rem', padding: '12px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
                 <div className="grid grid-cols-2 gap-y-4 gap-x-8" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 10px' }}>
-                  {/* Left Column */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Student Name</label>
-                    <p className="text-lg font-semibold text-slate-900" style={{ fontSize: '1rem', fontWeight: '600', color: '#0f172a' }}>{selectedFee.student_name}</p>
+                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Student Name</label>
+                    <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#0f172a' }}>{selectedFee.student_name}</p>
                   </div>
-                  {/* Right Column */}
                   {selectedFee.father_name && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Father's Name (S/O)</label>
-                      <p className="text-slate-700" style={{ color: '#334155', fontSize: '0.875rem' }}>{selectedFee.father_name}</p>
+                      <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Father's Name (S/O)</label>
+                      <p style={{ color: '#334155', fontSize: '0.875rem', fontWeight: '400' }}>{selectedFee.father_name}</p>
                     </div>
                   )}
-                  {/* Left Column - Second Row */}
                   {selectedFee.mobile && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Mobile Number</label>
-                      <p className="text-slate-700" style={{ color: '#334155', fontSize: '0.875rem' }}>+91 {selectedFee.mobile}</p>
+                      <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Mobile Number</label>
+                      <p style={{ color: '#334155', fontSize: '0.875rem', fontWeight: '400' }}>+91 {selectedFee.mobile}</p>
                     </div>
                   )}
-                  {/* Right Column - Second Row */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '600', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Trade</label>
-                    <p className="text-slate-700 font-medium" style={{ color: '#334155', fontWeight: '500', fontSize: '0.875rem' }}>{selectedFee.trade}</p>
+                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '500', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Trade</label>
+                    <p style={{ color: '#334155', fontWeight: '500', fontSize: '0.875rem' }}>{selectedFee.trade}</p>
                   </div>
                 </div>
               </div>
@@ -1316,22 +1459,28 @@ const FeeManagement = () => {
               <div className="mb-12" style={{ marginBottom: '10px' }}>
                 <table className="w-full text-left" style={{ width: '100%', textAlign: 'left' }}>
                   <thead>
-                    <tr className="border-b border-slate-200" style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <th className="py-3 font-semibold text-slate-500" style={{ padding: '12px 0', fontWeight: '600', color: '#64748b' }}>Description</th>
-                      <th className="py-3 font-semibold text-slate-500 text-right" style={{ padding: '12px 0', fontWeight: '600', color: '#64748b', textAlign: 'right' }}>Amount</th>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <th style={{ padding: '8px 0', fontWeight: '500', color: '#64748b', fontSize: '0.8rem' }}>Description</th>
+                      <th style={{ padding: '8px 0', fontWeight: '500', color: '#64748b', textAlign: 'right', fontSize: '0.8rem' }}>Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100" style={{ borderTop: 'none' }}>
+                  <tbody>
                     <tr>
-                      <td className="py-4 text-slate-700" style={{ padding: '16px 0', color: '#334155' }}>{selectedFee.fee_type}</td>
-                      <td className="py-4 text-slate-900 text-right" style={{ padding: '16px 0', color: '#0f172a', textAlign: 'right' }}>₹{selectedFee.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
+                      <td style={{ padding: '10px 0', color: '#334155', fontSize: '0.85rem' }}>{selectedFee.fee_type}</td>
+                      <td style={{ padding: '10px 0', color: '#0f172a', textAlign: 'right', fontSize: '0.85rem' }}>₹{selectedFee.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
                     </tr>
                   </tbody>
                   <tfoot>
-                    <tr className="border-t-2 border-slate-900" style={{ borderTop: '2px solid #0f172a' }}>
-                      <td className="py-4 text-lg font-bold text-slate-900" style={{ padding: '16px 0', fontSize: '1.125rem', fontWeight: '700', color: '#0f172a' }}>Paid Amount</td>
-                      <td className="py-4 text-2xl font-bold text-primary text-right" style={{ padding: '16px 0', fontSize: '1.5rem', fontWeight: '700', color: '#1e3a8a', textAlign: 'right' }}>₹{(selectedFee.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <tr style={{ borderTop: '2px solid #0f172a' }}>
+                      <td style={{ padding: '10px 0', fontSize: '0.9rem', fontWeight: '600', color: '#0f172a' }}>Total Paid</td>
+                      <td style={{ padding: '10px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1e3a8a', textAlign: 'right' }}>₹{(selectedFee.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
+                    {(selectedFee.amount - (selectedFee.paid_amount || 0)) > 0 && (
+                      <tr>
+                        <td style={{ padding: '4px 0', fontSize: '0.8rem', fontWeight: '500', color: '#dc2626' }}>Due Balance</td>
+                        <td style={{ padding: '4px 0', fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', textAlign: 'right' }}>₹{(selectedFee.amount - (selectedFee.paid_amount || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      </tr>
+                    )}
                   </tfoot>
                 </table>
               </div>

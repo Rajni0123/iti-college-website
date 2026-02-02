@@ -18,6 +18,72 @@ const generateInvoiceNumber = () => {
   return `INV${year}${month}${random}`;
 };
 
+// Search students for autocomplete (from admissions table)
+exports.searchStudents = (req, res) => {
+  const { q } = req.query;
+  if (!q || q.trim().length < 2) {
+    return res.json([]);
+  }
+  const search = `%${q.trim()}%`;
+
+  // Search from admissions table (approved students) and also students table
+  const query = `
+    SELECT DISTINCT
+      a.id as admission_id,
+      a.name as student_name,
+      a.father_name,
+      a.mobile,
+      a.trade,
+      a.email,
+      a.session,
+      a.shift,
+      COALESCE(
+        (SELECT SUM(sf.amount - sf.paid_amount) FROM student_fees sf WHERE sf.admission_id = a.id AND sf.status != 'Paid'),
+        0
+      ) as total_due_balance
+    FROM admissions a
+    WHERE (a.name LIKE ? OR a.father_name LIKE ? OR a.mobile LIKE ?)
+    AND a.status = 'Approved'
+    ORDER BY a.name ASC
+    LIMIT 20
+  `;
+
+  db.all(query, [search, search, search], (err, results) => {
+    if (err) {
+      console.error('Error searching students:', err);
+      return res.status(500).json({ message: 'Failed to search students' });
+    }
+    res.json(results || []);
+  });
+};
+
+// Get fee balance for a specific student (admission_id)
+exports.getStudentFeeBalance = (req, res) => {
+  const { admission_id } = req.params;
+
+  db.all(
+    `SELECT * FROM student_fees WHERE admission_id = ? ORDER BY created_at DESC`,
+    [admission_id],
+    (err, fees) => {
+      if (err) {
+        console.error('Error fetching student fees:', err);
+        return res.status(500).json({ message: 'Failed to fetch student fees' });
+      }
+
+      const totalFees = (fees || []).reduce((sum, f) => sum + (f.amount || 0), 0);
+      const totalPaid = (fees || []).reduce((sum, f) => sum + (f.paid_amount || 0), 0);
+      const totalDue = totalFees - totalPaid;
+
+      res.json({
+        fees: fees || [],
+        total_fees: totalFees,
+        total_paid: totalPaid,
+        total_due: totalDue
+      });
+    }
+  );
+};
+
 // Get all fees
 exports.getFees = (req, res) => {
   const { admission_id, status, trade, academic_year } = req.query;
