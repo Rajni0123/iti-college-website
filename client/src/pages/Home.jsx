@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { 
-  Phone, Mail, School, Menu, 
+import {
   Download, CreditCard, Calendar, ShieldCheck,
-  ChevronRight, FileText, Clock, GraduationCap
+  ChevronRight, FileText, Clock, GraduationCap,
+  School, Users, Award, ArrowRight, Briefcase, Zap
 } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import { getNotices, getFlashNews, getSettings } from '../services/api';
@@ -16,7 +16,7 @@ const Home = () => {
     title: 'Shape Your Future With Technical Excellence.',
     subtitle: 'ADMISSION OPEN 2024-25',
     description: "Join the region's leading private ITI to master high-demand technical skills and get 100% placement assistance.",
-    background_image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBdxCMlJMLVeJ6DemcOw2AIihGbiepX5MPWU8r750l9Vi7pmoTzGVhz-NKXuc0hRLtAOeE2CZfns5-KQWaN0o2jpL8zRMJ1F89VY4gQ1ZRt4NphdCl-E5D7SwEf22H9m9gjfOqbWYea0KCzyZ-fxa4KlT9Go5DizC2onmz_rywidkbWavMPS_UfzoIviQGKr7k5bwI46H13I34QQp4Z9JggtUXLiUm-Wl23DEPPI7_Jcr28lI7YfJgXmL23AqXcG5UU1n0O1njDu__y',
+    background_image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1920&auto=format&fit=crop&q=80',
     cta_text: 'Apply Online Now',
     cta_link: '/apply-admission',
     cta2_text: 'Explore Trades',
@@ -26,7 +26,7 @@ const Home = () => {
     header_text: 'Admission Open for the Academic Session 2024-25. Apply now to secure your seat in Electrician and Fitter trades.',
     principal_name: 'Dr. Rajesh Kumar',
     principal_message: 'Welcome to Maner Pvt ITI, a premier institution committed to providing quality vocational training. Our mission is to empower students with technical skills that align with industry demands, ensuring successful careers and contributing to nation-building.',
-    principal_image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCNxEaoEaDN2RG5KPxRiN6ylbDwfNpM-Cy5JHvNgvtYKaCyfaWqgvOb23E4Xi01HEJVymR6l6scH3XPEQcL3HfTG5CuxYnFt_qLECUasV7kcA8mNAiY9QAjnvTg3CIlHHq9lwNVglOYWVNeTMFgIT5tEj53mGvRf1Qp4iXLFnrKD2PS8mauQf3Ga2b1zZDCADG9qp3RQQi_fMYTt8HcKhHHEYgRYCNqQMUe3QxDOs_g6YhNJVSuQFVvq2iRAWXZJ6kvYqqalJCBskYe',
+    principal_image: '',
     credit_card_enabled: 'true',
     credit_card_title: 'Student Credit Card Facility Available',
     credit_card_description: 'Get financial support through Bihar Student Credit Card Scheme. Apply for interest-free loans up to ₹4 Lakhs for your technical education.'
@@ -42,7 +42,7 @@ const Home = () => {
   const fetchNotices = async () => {
     try {
       const response = await getNotices();
-      setNotices(response.data.slice(0, 3)); // Get only the latest 3 notices
+      setNotices(response.data.slice(0, 3));
     } catch (error) {
       console.error('Error fetching notices:', error);
     }
@@ -51,14 +51,9 @@ const Home = () => {
   const fetchSettings = async () => {
     try {
       const response = await getSettings();
-      // Merge with defaults to ensure all fields are present
-      setSettings(prevSettings => ({
-        ...prevSettings,
-        ...response.data
-      }));
+      setSettings(prevSettings => ({ ...prevSettings, ...response.data }));
     } catch (error) {
       console.error('Error fetching settings:', error);
-      // Keep using default settings already in state
     }
   };
 
@@ -74,7 +69,6 @@ const Home = () => {
   const fetchHeroData = async () => {
     try {
       const response = await api.get('/hero');
-      // Get the first active hero section
       if (response.data && response.data.length > 0) {
         setHeroData(prev => ({ ...prev, ...response.data[0] }));
       }
@@ -83,10 +77,9 @@ const Home = () => {
     }
   };
 
-  // Combine all active flash news content for marquee display
   const getFlashNewsText = () => {
     if (flashNews.length > 0) {
-      return flashNews.map(news => news.content).join(' | ');
+      return flashNews.map(news => news.content).join('  \u00A0\u00A0|\u00A0\u00A0  ');
     }
     return settings.header_text;
   };
@@ -98,382 +91,222 @@ const Home = () => {
     return { day, month };
   };
 
+  const features = [
+    { icon: ShieldCheck, title: 'NCVT Certified', desc: 'All courses are NCVT approved and recognized nationwide.' },
+    { icon: Users, title: 'Expert Faculty', desc: 'Experienced instructors with industry expertise.' },
+    { icon: School, title: 'Modern Labs', desc: 'State-of-the-art workshops with latest equipment.' },
+    { icon: Briefcase, title: 'Placement Support', desc: 'Dedicated placement cell for career opportunities.' },
+    { icon: CreditCard, title: 'Affordable Fees', desc: 'Quality education with flexible payment options.' },
+    { icon: Clock, title: 'Flexible Batches', desc: 'Morning and afternoon batches available.' },
+  ];
+
   return (
-    <div className="bg-white dark:bg-[#0e121b] font-display text-[#0e121b] dark:text-white">
-      {/* Flash News Section */}
-      <div className="bg-white dark:bg-[#111621]/50 border-b border-[#e7ebf3] flex items-stretch">
-        <div className="bg-[#ef4444] text-white px-6 py-2 flex items-center font-bold text-sm uppercase whitespace-nowrap z-10">
-          <span className="text-sm mr-2">📢</span>
-          Flash News
+    <div className="min-h-screen bg-gray-50">
+      {/* Flash News */}
+      <div className="bg-white border-b border-gray-200 flex items-stretch overflow-hidden">
+        <div className="bg-[#195de6] text-white px-4 sm:px-6 py-2.5 flex items-center font-semibold text-xs uppercase whitespace-nowrap shrink-0">
+          <span className="mr-2">&#9679;</span>
+          Updates
         </div>
-        <div className="marquee flex items-center bg-[#ef4444]/5 dark:bg-[#ef4444]/10 w-full italic text-sm font-medium text-[#0e121b] dark:text-gray-200">
+        <div className="marquee flex items-center w-full text-sm text-gray-600">
           <p className="inline-block pl-[100%] animate-[marquee_30s_linear_infinite]">
             {getFlashNewsText()}
           </p>
         </div>
       </div>
 
-      {/* Hero Section - Using shared component */}
+      {/* Hero */}
       <HeroSection heroData={heroData} />
 
-        {/* Quick Links Grid */}
-        <section className="px-4 lg:px-20 py-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link 
-              to="/syllabus" 
-              className="group flex flex-col items-center p-6 bg-white dark:bg-[#111621] border border-[#d0d7e7] dark:border-gray-800 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all"
+      {/* Quick Links */}
+      <section className="max-w-[1280px] mx-auto px-4 lg:px-8 -mt-6 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[
+            { to: '/trades', icon: Download, label: 'Download Syllabus' },
+            { to: '/fee-structure', icon: CreditCard, label: 'Fee Structure' },
+            { to: '/results', icon: Calendar, label: 'Exam Results' },
+            { to: '/about', icon: ShieldCheck, label: 'About Institute' },
+          ].map((item, i) => (
+            <Link
+              key={i}
+              to={item.to}
+              className="flex flex-col items-center p-4 sm:p-5 bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group"
             >
-              <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                <Download className="h-8 w-8" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 bg-[#195de6]/5 rounded-lg flex items-center justify-center mb-2.5 group-hover:bg-[#195de6] transition-colors">
+                <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#195de6] group-hover:text-white transition-colors" />
               </div>
-              <span className="font-semibold text-sm text-center">Download Syllabus</span>
+              <span className="font-semibold text-xs sm:text-sm text-gray-800 text-center leading-tight">{item.label}</span>
             </Link>
-            <Link 
-              to="/fee-structure" 
-              className="group flex flex-col items-center p-6 bg-white dark:bg-[#111621] border border-[#d0d7e7] dark:border-gray-800 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
-              <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                <CreditCard className="h-8 w-8" />
-              </div>
-              <span className="font-semibold text-sm text-center">Fee Structure</span>
-            </Link>
-            <Link 
-              to="/exam-schedule" 
-              className="group flex flex-col items-center p-6 bg-white dark:bg-[#111621] border border-[#d0d7e7] dark:border-gray-800 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
-              <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                <Calendar className="h-8 w-8" />
-              </div>
-              <span className="font-semibold text-sm text-center">Exam Schedule</span>
-            </Link>
-            <Link 
-              to="/verification" 
-              className="group flex flex-col items-center p-6 bg-white dark:bg-[#111621] border border-[#d0d7e7] dark:border-gray-800 rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
-              <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                <ShieldCheck className="h-8 w-8" />
-              </div>
-              <span className="font-semibold text-sm text-center">Trainee Verification</span>
-            </Link>
-          </div>
-          </section>
+          ))}
+        </div>
+      </section>
 
-        {/* Student Credit Card Section */}
-        {settings.credit_card_enabled === 'true' && (
-          <section className="px-4 lg:px-20 py-12">
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 md:p-12 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0">
-                  <div className="bg-white/20 backdrop-blur-sm p-6 rounded-2xl">
-                    <CreditCard className="h-16 w-16 text-white" />
-                  </div>
-                </div>
-                <div className="flex-1 text-white text-center md:text-left">
-                  <h2 className="text-3xl font-bold mb-3">{settings.credit_card_title}</h2>
-                  <p className="text-white/90 text-lg leading-relaxed mb-6">
-                    {settings.credit_card_description}
-                  </p>
-                  <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                    <Link
-                      to="/apply-admission"
-                      className="bg-white text-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition-colors shadow-lg"
-                    >
-                      Apply Now
-                    </Link>
-                    <a
-                      href="https://www.7nishchay-yuvaupmission.bihar.gov.in/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/20 backdrop-blur-sm border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors"
-                    >
-                      Learn More
-                    </a>
-                  </div>
+      {/* Credit Card Section */}
+      {settings.credit_card_enabled === 'true' && (
+        <section className="max-w-[1280px] mx-auto px-4 lg:px-8 py-10 sm:py-14">
+          <div className="bg-[#195de6] rounded-2xl p-6 sm:p-10 relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-56 h-56 bg-white/5 rounded-full"></div>
+            <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-white/5 rounded-full"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+              <div className="shrink-0">
+                <div className="bg-white/10 p-5 rounded-xl">
+                  <CreditCard className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
                 </div>
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* Why Choose Us Section */}
-        <section className="px-4 lg:px-20 py-16">
-          <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0e121b] mb-4">Why Choose Maner Pvt ITI?</h2>
-              <p className="text-lg text-[#4e6797] max-w-2xl mx-auto">
-                We offer world-class training facilities and expert guidance to shape your technical career
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <ShieldCheck className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">NCVT Certified</h3>
-                <p className="text-[#4e6797]">
-                  All our courses are NCVT approved and recognized nationwide for better career opportunities.
-                </p>
-              </div>
-              
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <GraduationCap className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">Expert Faculty</h3>
-                <p className="text-[#4e6797]">
-                  Learn from experienced instructors with industry expertise and practical knowledge.
-                </p>
-              </div>
-              
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <School className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">Modern Infrastructure</h3>
-                <p className="text-[#4e6797]">
-                  State-of-the-art workshops and labs equipped with latest tools and machinery.
-                </p>
-              </div>
-              
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <ChevronRight className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">100% Placement Support</h3>
-                <p className="text-[#4e6797]">
-                  Dedicated placement cell connecting students with top companies for guaranteed jobs.
-                </p>
-              </div>
-              
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <CreditCard className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">Affordable Fees</h3>
-                <p className="text-[#4e6797]">
-                  Quality education at affordable fees with flexible installment options and scholarships.
-                </p>
-              </div>
-              
-              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all hover:-translate-y-1">
-                <div className="bg-[#195de6]/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
-                  <Clock className="h-7 w-7 text-[#195de6]" />
-                </div>
-                <h3 className="text-xl font-bold text-[#0e121b] mb-2">Flexible Batches</h3>
-                <p className="text-[#4e6797]">
-                  Morning and afternoon batches available to suit your schedule and convenience.
-                </p>
-              </div>
-            </div>
-        </section>
-
-        {/* Trades Section */}
-        <section className="bg-gradient-to-br from-[#195de6]/5 to-blue-50 dark:bg-[#111621]/80 py-20">
-          <div className="px-4 lg:px-20">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-[#0e121b] mb-3">Our Professional Courses</h2>
-              <p className="text-lg text-[#4e6797] max-w-2xl mx-auto">
-                NCVT certified technical training programs designed for your successful career
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* Electrician Course */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300">
-                <div className="relative h-56 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop" 
-                    alt="Electrician working"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
-                  <div className="absolute top-4 right-4 bg-[#195de6] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                    NCVT Certified
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-[#195de6] p-3 rounded-lg">
-                        <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">Electrician</h3>
-                        <p className="text-blue-100 text-sm font-medium">2 Year Diploma Course</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <p className="text-[#4e6797] leading-relaxed mb-6">
-                    Master electrical installations, wiring systems, motor controls, and industrial automation with comprehensive hands-on training.
-                  </p>
-                  
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <Clock className="h-5 w-5 text-[#195de6] mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">2 Years</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <GraduationCap className="h-5 w-5 text-[#195de6] mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">10th Pass</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <ShieldCheck className="h-5 w-5 text-[#195de6] mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">NCVT</p>
-                    </div>
-                  </div>
-                  
-                  <Link 
-                    to="/apply-admission"
-                    className="w-full bg-[#195de6] text-white py-3 rounded-lg font-bold text-center hover:bg-[#1e40af] transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
-                  >
-                    Apply Now <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <div className="flex-1 text-white text-center md:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">{settings.credit_card_title}</h2>
+                <p className="text-white/80 text-sm sm:text-base leading-relaxed mb-5">{settings.credit_card_description}</p>
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <Link to="/apply-admission" className="bg-white text-[#195de6] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors">
+                    Apply Now
                   </Link>
+                  <a href="https://www.7nishchay-yuvaupmission.bihar.gov.in/" target="_blank" rel="noopener noreferrer" className="border border-white/30 text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-white/10 transition-colors">
+                    Learn More
+                  </a>
                 </div>
               </div>
-
-              {/* Fitter Course */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300">
-                <div className="relative h-56 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop" 
-                    alt="Fitter working in workshop"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
-                  <div className="absolute top-4 right-4 bg-teal-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                    NCVT Certified
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="bg-teal-600 p-3 rounded-lg">
-                        <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white">Fitter</h3>
-                        <p className="text-teal-100 text-sm font-medium">2 Year Diploma Course</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <p className="text-[#4e6797] leading-relaxed mb-6">
-                    Learn precision fitting, assembly, maintenance, and repair of machinery with expert training in metal cutting and industrial operations.
-                  </p>
-                  
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <Clock className="h-5 w-5 text-teal-600 mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">2 Years</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <GraduationCap className="h-5 w-5 text-teal-600 mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">10th Pass</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <ShieldCheck className="h-5 w-5 text-teal-600 mx-auto mb-1" />
-                      <p className="text-xs font-bold text-[#0e121b]">NCVT</p>
-                    </div>
-                  </div>
-                  
-                  <Link 
-                    to="/apply-admission"
-                    className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold text-center hover:bg-teal-700 transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
-                  >
-                    Apply Now <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-
-          </div>
+            </div>
           </div>
         </section>
+      )}
 
-        {/* Notices and Info */}
-        <section className="px-4 lg:px-20 py-16 grid grid-cols-1 lg:grid-cols-3 gap-10">
+      {/* Why Choose Us */}
+      <section className="max-w-[1280px] mx-auto px-4 lg:px-8 py-10 sm:py-16">
+        <div className="text-center mb-10">
+          <span className="text-[#195de6] font-semibold text-xs uppercase tracking-widest">Why Choose Us</span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2 mb-3">Why Choose Maner Pvt ITI?</h2>
+          <div className="w-16 h-0.5 bg-[#195de6] mx-auto mb-3"></div>
+          <p className="text-gray-500 text-sm sm:text-base max-w-xl mx-auto">World-class training facilities and expert guidance to shape your technical career</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {features.map((f, i) => (
+            <div key={i} className="bg-white border border-gray-100 rounded-xl p-5 sm:p-6 hover:shadow-md transition-all group">
+              <div className="w-10 h-10 bg-[#195de6]/5 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#195de6] transition-colors">
+                <f.icon className="h-5 w-5 text-[#195de6] group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5">{f.title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Courses */}
+      <section className="bg-white py-10 sm:py-16">
+        <div className="max-w-[1280px] mx-auto px-4 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="text-[#195de6] font-semibold text-xs uppercase tracking-widest">Our Courses</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2 mb-3">Professional Training Programs</h2>
+            <div className="w-16 h-0.5 bg-[#195de6] mx-auto mb-3"></div>
+            <p className="text-gray-500 text-sm sm:text-base max-w-xl mx-auto">NCVT certified programs designed for your successful career</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-4xl mx-auto">
+            {/* Electrician */}
+            <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden group hover:shadow-lg transition-all">
+              <div className="relative h-44 sm:h-52 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop" alt="Electrician" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent"></div>
+                <span className="absolute top-3 right-3 bg-[#195de6] text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">NCVT Certified</span>
+                <div className="absolute bottom-4 left-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white">Electrician</h3>
+                  <p className="text-white/80 text-xs">2 Year Diploma Course</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">Master electrical installations, wiring systems, motor controls, and industrial automation with hands-on training.</p>
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                  <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> 2 Years</span>
+                  <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> 10th Pass</span>
+                  <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> NCVT</span>
+                </div>
+                <Link to="/apply-admission" className="w-full bg-[#195de6] text-white py-2.5 rounded-lg font-semibold text-sm text-center hover:bg-[#1e40af] transition-colors flex items-center justify-center gap-1.5">
+                  Apply Now <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Fitter */}
+            <div className="bg-gray-50 border border-gray-100 rounded-xl overflow-hidden group hover:shadow-lg transition-all">
+              <div className="relative h-44 sm:h-52 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=600&fit=crop" alt="Fitter" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent"></div>
+                <span className="absolute top-3 right-3 bg-[#195de6] text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">NCVT Certified</span>
+                <div className="absolute bottom-4 left-4">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white">Fitter</h3>
+                  <p className="text-white/80 text-xs">2 Year Diploma Course</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">Learn precision fitting, assembly, maintenance, and repair of machinery with expert training in metal cutting operations.</p>
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                  <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> 2 Years</span>
+                  <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> 10th Pass</span>
+                  <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> NCVT</span>
+                </div>
+                <Link to="/apply-admission" className="w-full bg-[#195de6] text-white py-2.5 rounded-lg font-semibold text-sm text-center hover:bg-[#1e40af] transition-colors flex items-center justify-center gap-1.5">
+                  Apply Now <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Notices + Principal */}
+      <section className="max-w-[1280px] mx-auto px-4 lg:px-8 py-10 sm:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Notices */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 border-b-2 border-[#195de6] mb-6 pb-2">
-              <FileText className="h-6 w-6 text-[#195de6]" />
-              <h2 className="text-2xl font-bold">Latest Notifications</h2>
+            <div className="flex items-center gap-2.5 mb-5 pb-2.5 border-b border-gray-200">
+              <FileText className="h-5 w-5 text-[#195de6]" />
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Latest Notifications</h2>
             </div>
-            <div className="space-y-4">
-              {notices.length > 0 ? (
-                <>
-                  {notices.map((notice) => {
-                    const { day, month } = formatDate(notice.created_at);
-                    return (
-                      <div key={notice.id} className="bg-white dark:bg-[#111621] p-4 rounded-lg border border-gray-200 dark:border-gray-800 flex items-start gap-4">
-                        <div className="bg-[#195de6]/10 text-[#195de6] px-3 py-2 rounded text-center min-w-[60px]">
-                          <p className="text-lg font-bold">{day}</p>
-                          <p className="text-[10px] uppercase font-bold">{month}</p>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-[#195de6] text-sm uppercase">Notice</p>
-                          <h4 className="font-bold text-lg mb-1 leading-tight">{notice.title}</h4>
-                          <p className="text-[#4e6797] text-sm">{notice.description}</p>
-                          {notice.pdf && (
-                            <a
-                              href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || ''}/uploads/${notice.pdf}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 mt-2 text-xs text-[#195de6] hover:underline font-medium"
-                            >
-                              <FileText className="h-3 w-3" />
-                              View PDF
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </>
-              ) : (
-                <div className="bg-white dark:bg-[#111621] p-8 rounded-lg border border-gray-200 dark:border-gray-800 text-center">
-                  <p className="text-[#4e6797]">No notices available at the moment.</p>
+            <div className="space-y-3">
+              {notices.length > 0 ? notices.map((notice) => {
+                const { day, month } = formatDate(notice.created_at);
+                return (
+                  <div key={notice.id} className="bg-white p-4 rounded-lg border border-gray-100 flex items-start gap-3.5">
+                    <div className="bg-[#195de6]/5 text-[#195de6] px-2.5 py-1.5 rounded-md text-center min-w-[50px] shrink-0">
+                      <p className="text-base font-bold leading-tight">{day}</p>
+                      <p className="text-[9px] uppercase font-bold">{month}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-0.5 leading-snug">{notice.title}</h4>
+                      <p className="text-gray-500 text-xs sm:text-sm line-clamp-2">{notice.description}</p>
+                      {notice.pdf && (
+                        <a href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || ''}/uploads/${notice.pdf}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-1.5 text-xs text-[#195de6] hover:underline font-medium">
+                          <FileText className="h-3 w-3" /> View PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              }) : (
+                <div className="bg-white p-6 rounded-lg border border-gray-100 text-center">
+                  <p className="text-gray-400 text-sm">No notices available at the moment.</p>
                 </div>
               )}
-              <Link 
-                to="/notices"
-                className="w-full py-3 text-sm font-bold text-gray-500 hover:text-[#195de6] border-2 border-dashed border-gray-200 rounded-lg transition-colors block text-center"
-              >
+              <Link to="/notices" className="w-full py-2.5 text-xs font-semibold text-gray-400 hover:text-[#195de6] border border-dashed border-gray-200 rounded-lg transition-colors block text-center hover:border-[#195de6]/30">
                 View All Notifications
               </Link>
             </div>
           </div>
-          <div className="bg-[#195de6] text-white p-8 rounded-2xl shadow-xl flex flex-col justify-between">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Principal's Message</h3>
-              <div 
-                className="size-20 bg-white/20 rounded-full mb-6 mx-auto bg-cover bg-center border-2 border-white" 
-                style={{
-                  backgroundImage: `url("${settings.principal_image}")`
-                }}
-              ></div>
-              <p className="italic text-white/90 text-center text-sm leading-relaxed">
-                "{settings.principal_message}"
-              </p>
-              <p className="text-center font-bold mt-4">- {settings.principal_name}</p>
-              <p className="text-center text-[10px] uppercase tracking-widest text-white/70">Principal, Maner Pvt ITI</p>
+
+          {/* Principal's Message */}
+          <div className="bg-[#195de6] text-white p-6 sm:p-7 rounded-xl flex flex-col">
+            <h3 className="text-lg font-bold mb-5">Principal's Message</h3>
+            <div className="w-16 h-16 bg-white/10 rounded-full mb-4 mx-auto bg-cover bg-center border-2 border-white/20" style={{ backgroundImage: `url("${settings.principal_image}")` }}></div>
+            <p className="italic text-white/80 text-center text-xs sm:text-sm leading-relaxed flex-1">"{settings.principal_message}"</p>
+            <div className="text-center mt-4 mb-5">
+              <p className="font-bold text-sm">- {settings.principal_name}</p>
+              <p className="text-[9px] uppercase tracking-widest text-white/60 mt-0.5">Principal, Maner Pvt ITI</p>
             </div>
-            <div className="mt-8">
-              <Link 
-                to="/contact"
-                className="w-full bg-white text-[#195de6] font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors block text-center"
-              >
-                Contact Principal
-              </Link>
-            </div>
+            <Link to="/contact" className="w-full bg-white text-[#195de6] font-semibold py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors block text-center">
+              Contact Principal
+            </Link>
           </div>
-        </section>
+        </div>
+      </section>
     </div>
   );
 };

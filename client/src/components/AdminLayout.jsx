@@ -20,13 +20,35 @@ import {
   GraduationCap,
   Calendar
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getProfile } from '../services/api';
 
 const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [adminUser, setAdminUser] = useState({ name: '', email: '', role: 'Admin' });
 
   const isActive = (path) => location.pathname === path;
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await getProfile();
+      const user = response.data?.data || response.data;
+      if (user) {
+        setAdminUser({
+          name: user.name || user.email?.split('@')[0] || 'Admin',
+          email: user.email || '',
+          role: user.role || 'Admin'
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -287,12 +309,12 @@ const AdminLayout = () => {
           {/* Profile Footer */}
           <div className="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-3 mb-3">
-              <div className="size-10 rounded-full bg-[#195de6] flex items-center justify-center text-white font-bold">
-                JD
+              <div className="size-10 rounded-full bg-[#195de6] flex items-center justify-center text-white font-bold text-sm">
+                {adminUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'A'}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">John Doe</p>
-                <p className="text-xs text-slate-500">Super Admin</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{adminUser.name}</p>
+                <p className="text-xs text-slate-500 capitalize">{adminUser.role}</p>
               </div>
             </div>
             <button
