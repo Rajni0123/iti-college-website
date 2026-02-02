@@ -61,36 +61,36 @@ const HeroSection = ({
 
   // Full size for frontend
   return (
-    <div className="px-4 lg:px-20 py-6">
-      <div className="relative overflow-hidden rounded-xl h-[500px] shadow-2xl">
-        <div 
-          className="absolute inset-0 bg-cover bg-center" 
+    <div className="px-3 sm:px-4 lg:px-20 py-3 sm:py-6">
+      <div className="relative overflow-hidden rounded-xl h-[280px] sm:h-[380px] md:h-[500px] shadow-2xl">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `linear-gradient(rgba(14, 18, 27, 0.7), rgba(14, 18, 27, 0.2)), url("${data.background_image}")`
           }}
         ></div>
-        <div className="relative h-full flex flex-col justify-center px-8 md:px-16 max-w-[800px]">
+        <div className="relative h-full flex flex-col justify-center px-5 sm:px-8 md:px-16 max-w-[800px]">
           {data.subtitle && (
-            <div className="inline-flex items-center bg-[#ef4444] text-white px-3 py-1 rounded-full text-xs font-bold mb-6 animate-pulse">
+            <div className="inline-flex items-center bg-[#ef4444] text-white px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold mb-3 sm:mb-6 animate-pulse">
               {data.subtitle}
             </div>
           )}
-          <h1 className="text-white text-4xl md:text-6xl font-bold leading-tight mb-4 tracking-tighter">
+          <h1 className="text-white text-2xl sm:text-4xl md:text-6xl font-bold leading-tight mb-2 sm:mb-4 tracking-tighter">
             {data.title}
           </h1>
-          <p className="text-white/90 text-lg md:text-xl font-normal mb-8 leading-relaxed">
+          <p className="text-white/90 text-xs sm:text-lg md:text-xl font-normal mb-4 sm:mb-8 leading-relaxed line-clamp-2 sm:line-clamp-none">
             {data.description}
           </p>
-          <div className="flex flex-wrap gap-4">
-            <Link 
+          <div className="flex flex-wrap gap-2.5 sm:gap-4">
+            <Link
               to={data.cta_link || "/apply-admission"}
-              className="bg-[#195de6] text-white h-12 px-8 rounded-lg font-semibold text-lg hover:bg-[#1e40af] transition-colors shadow-lg shadow-[#195de6]/30 flex items-center gap-2"
+              className="bg-[#195de6] text-white h-9 sm:h-12 px-4 sm:px-8 rounded-lg font-semibold text-xs sm:text-lg hover:bg-[#1e40af] transition-colors shadow-lg shadow-[#195de6]/30 flex items-center gap-1.5 sm:gap-2"
             >
-              {data.cta_text} <ArrowRight className="h-5 w-5" />
+              {data.cta_text} <ArrowRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
             </Link>
-            <Link 
+            <Link
               to={data.cta2_link || "/trades"}
-              className="bg-white/10 backdrop-blur-md border border-white/30 text-white h-12 px-8 rounded-lg font-semibold text-lg hover:bg-white/20 transition-colors"
+              className="bg-white/10 backdrop-blur-md border border-white/30 text-white h-9 sm:h-12 px-4 sm:px-8 rounded-lg font-semibold text-xs sm:text-lg hover:bg-white/20 transition-colors"
             >
               {data.cta2_text}
             </Link>
