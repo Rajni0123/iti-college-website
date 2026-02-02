@@ -119,30 +119,26 @@ const Home = () => {
       <HeroSection heroData={heroData} />
 
       {/* Quick Links */}
-      <section className="max-w-[1280px] mx-auto px-4 lg:px-8 -mt-7 relative z-10">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-2 sm:p-3">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
-            {[
-              { to: '/trades', icon: Download, label: 'Download Syllabus', desc: 'Course curriculum & details' },
-              { to: '/fee-structure', icon: CreditCard, label: 'Fee Structure', desc: 'Transparent fee details' },
-              { to: '/results', icon: Calendar, label: 'Exam Results', desc: 'Check your results online' },
-              { to: '/about', icon: ShieldCheck, label: 'About Institute', desc: 'Know more about us' },
-            ].map((item, i) => (
-              <Link
-                key={i}
-                to={item.to}
-                className="flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-4 sm:py-5 hover:bg-[#195de6]/[0.03] transition-colors group rounded-xl"
-              >
-                <div className="w-11 h-11 sm:w-12 sm:h-12 bg-[#195de6] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-md shadow-[#195de6]/20">
-                  <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <span className="font-bold text-xs sm:text-sm text-gray-900 block leading-tight group-hover:text-[#195de6] transition-colors">{item.label}</span>
-                  <span className="text-[10px] sm:text-xs text-gray-400 leading-tight hidden sm:block mt-0.5">{item.desc}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+      <section className="max-w-[1280px] mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          {[
+            { to: '/trades', icon: Download, label: 'Download Syllabus', desc: 'Course curriculum & details' },
+            { to: '/fee-structure', icon: CreditCard, label: 'Fee Structure', desc: 'Transparent fee details' },
+            { to: '/results', icon: Calendar, label: 'Exam Results', desc: 'Check your results online' },
+            { to: '/about', icon: ShieldCheck, label: 'About Institute', desc: 'Know more about us' },
+          ].map((item, i) => (
+            <Link
+              key={i}
+              to={item.to}
+              className="flex flex-col items-center text-center p-4 sm:p-6 bg-white rounded-xl border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(25,93,230,0.15)] hover:-translate-y-1 transition-all duration-300 group"
+            >
+              <div className="w-11 h-11 sm:w-14 sm:h-14 bg-[#195de6]/5 rounded-xl flex items-center justify-center mb-2.5 sm:mb-3 group-hover:bg-[#195de6] transition-colors duration-300">
+                <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#195de6] group-hover:text-white transition-colors duration-300" />
+              </div>
+              <span className="font-bold text-xs sm:text-sm text-gray-900 leading-tight group-hover:text-[#195de6] transition-colors">{item.label}</span>
+              <span className="text-[10px] sm:text-xs text-gray-400 mt-0.5 hidden sm:block">{item.desc}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
