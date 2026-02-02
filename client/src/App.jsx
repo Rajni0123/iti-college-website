@@ -36,6 +36,7 @@ import AboutManagement from './admin/AboutManagement';
 import AdmissionProcessManagement from './admin/AdmissionProcessManagement';
 import FacultyManagement from './admin/FacultyManagement';
 import ProtectedRoute from './components/ProtectedRoute';
+import SEOHead from './components/SEOHead';
 
 function App() {
   return (

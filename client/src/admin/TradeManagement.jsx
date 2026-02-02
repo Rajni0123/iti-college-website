@@ -367,7 +367,7 @@ const TradeManagement = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Syllabus PDF</h4>
                     <a 
-                      href={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${viewingTrade.syllabus_pdf}`} 
+                      href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}${viewingTrade.syllabus_pdf}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -532,7 +532,7 @@ const TradeManagement = () => {
                     </div>
                     <div className="flex gap-2">
                       <a 
-                        href={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${currentPdf}`} 
+                        href={`${(import.meta.env.VITE_API_URL || 'https://manerpvtiti.space/api').replace('/api', '')}${currentPdf}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-xs text-blue-600 hover:underline"

@@ -20,6 +20,7 @@ server/uploads/*
 # Build outputs
 client/dist/
 client/build/
+server/public/
 
 # IDE
 .vscode/

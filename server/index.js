@@ -150,24 +150,30 @@ app.get('/api/health/db', (req, res) => {
 const db = require('./database/db');
 db.init();
 
-// 404 handler for undefined routes
+// Serve frontend static files (production: client/dist placed in server/public)
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// 404 handler for undefined API routes
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     console.warn(`[404] API route not found: ${req.method} ${req.path}`);
-    return res.status(404).json({ 
+    return res.status(404).json({
       success: false,
-      message: `API route not found: ${req.method} ${req.path}`,
-      availableRoutes: [
-        'GET /api/trades',
-        'GET /api/trades/:slug',
-        'GET /api/trades/admin/all (protected)',
-        'POST /api/trades (protected)',
-        'PUT /api/trades/:id (protected)',
-        'DELETE /api/trades/:id (protected)'
-      ]
+      message: `API route not found: ${req.method} ${req.path}`
     });
   }
   next();
+});
+
+// Catch-all: serve React app for any non-API, non-upload route (SPA support)
+app.get('*', (req, res) => {
+  const indexPath = path.join(publicPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(404).send('Frontend not found. Please upload the client build to server/public/ directory.');
+    }
+  });
 });
 
 app.listen(PORT, () => {
