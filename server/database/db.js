@@ -114,6 +114,8 @@ const init = () => {
       student_credit_card TEXT DEFAULT 'No',
       student_credit_card_details TEXT,
       registration_type TEXT DEFAULT 'Regular',
+      state_registration TEXT,
+      central_registration TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (admission_id) REFERENCES admissions(id)
@@ -150,6 +152,8 @@ const init = () => {
     db.run(`ALTER TABLE students ADD COLUMN student_credit_card TEXT DEFAULT 'No'`, () => {});
     db.run(`ALTER TABLE students ADD COLUMN student_credit_card_details TEXT`, () => {});
     db.run(`ALTER TABLE students ADD COLUMN registration_type TEXT DEFAULT 'Regular'`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN state_registration TEXT`, () => {});
+    db.run(`ALTER TABLE students ADD COLUMN central_registration TEXT`, () => {});
 
     // Notices table
     db.run(`CREATE TABLE IF NOT EXISTS notices (
@@ -249,6 +253,8 @@ const init = () => {
       student_credit_card TEXT DEFAULT 'No',
       student_credit_card_details TEXT,
       registration_type TEXT DEFAULT 'Regular',
+      state_registration TEXT,
+      central_registration TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -282,6 +288,8 @@ const init = () => {
     db.run(`ALTER TABLE admissions ADD COLUMN student_credit_card TEXT DEFAULT 'No'`, () => {});
     db.run(`ALTER TABLE admissions ADD COLUMN student_credit_card_details TEXT`, () => {});
     db.run(`ALTER TABLE admissions ADD COLUMN registration_type TEXT DEFAULT 'Regular'`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN state_registration TEXT`, () => {});
+    db.run(`ALTER TABLE admissions ADD COLUMN central_registration TEXT`, () => {});
 
     // Contact table
     db.run(`CREATE TABLE IF NOT EXISTS contact (

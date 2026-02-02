@@ -32,7 +32,8 @@ const defaultManualFormData = {
   class_12th_school: '', class_12th_marks_obtained: '', class_12th_total_marks: '',
   class_12th_percentage: '', class_12th_subject: '',
   student_credit_card: 'No', student_credit_card_bank: '', student_credit_card_account: '',
-  registration_type: 'Regular', status: 'Pending'
+  registration_type: 'Regular', status: 'Pending',
+  state_registration: '', central_registration: ''
 };
 
 const defaultEditFormData = {
@@ -48,6 +49,7 @@ const defaultEditFormData = {
   class_12th_percentage: '', class_12th_subject: '',
   student_credit_card: 'No', student_credit_card_bank: '', student_credit_card_account: '',
   registration_type: 'Regular', status: 'Pending',
+  state_registration: '', central_registration: '',
   has_photo: false, has_aadhaar: false, has_marksheet: false
 };
 
@@ -187,6 +189,8 @@ const Admissions = () => {
       student_credit_card_bank: sccBank,
       student_credit_card_account: sccAccount,
       registration_type: admission.registration_type || 'Regular',
+      state_registration: admission.state_registration || '',
+      central_registration: admission.central_registration || '',
       status: admission.status ? admission.status.charAt(0).toUpperCase() + admission.status.slice(1) : 'Pending',
       has_photo: admission.documents?.photo ? true : false,
       has_aadhaar: admission.documents?.aadhaar ? true : false,
@@ -330,7 +334,7 @@ const Admissions = () => {
           'PWD Claim', 'PWD Category',
           '10th School', '10th Marks', '10th Total', '10th Percentage', '10th Subject',
           '12th School', '12th Marks', '12th Total', '12th Percentage', '12th Subject',
-          'Student Credit Card', 'Registration Type', 'Status', 'Date Submitted'
+          'Student Credit Card', 'Registration Type', 'State Registration', 'Central Registration', 'Status', 'Date Submitted'
         ];
 
         const csvRows = [
@@ -372,6 +376,8 @@ const Admissions = () => {
             csvEscape(a.class_12th_subject),
             csvEscape(a.student_credit_card),
             csvEscape(a.registration_type),
+            csvEscape(a.state_registration),
+            csvEscape(a.central_registration),
             csvEscape(a.status),
             csvEscape(a.dateSubmitted)
           ].join(','))
@@ -898,11 +904,13 @@ const Admissions = () => {
                 </div>
               </div>
 
-              {/* Registration Type */}
+              {/* Registration */}
               <div>
                 <h4 className={sectionHeaderCls}>Registration</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <DetailField label="Registration Type" value={selectedAdmission.registration_type || 'Regular'} />
+                  <DetailField label="State Registration" value={selectedAdmission.state_registration || 'N/A'} />
+                  <DetailField label="Central Registration" value={selectedAdmission.central_registration || 'N/A'} />
                 </div>
               </div>
 
@@ -1057,6 +1065,16 @@ const Admissions = () => {
                               <div class="form-field">
                                 <span class="form-label">Registration Type:</span>
                                 <div class="form-value">${a.registration_type || 'Regular'}</div>
+                              </div>
+                            </div>
+                            <div class="form-row">
+                              <div class="form-field">
+                                <span class="form-label">State Registration:</span>
+                                <div class="form-value">${a.state_registration || 'N/A'}</div>
+                              </div>
+                              <div class="form-field">
+                                <span class="form-label">Central Registration:</span>
+                                <div class="form-value">${a.central_registration || 'N/A'}</div>
                               </div>
                             </div>
                           </div>
@@ -1568,6 +1586,18 @@ const Admissions = () => {
                     </select>
                   </div>
                   <div>
+                    <label className={labelCls}>State Registration</label>
+                    <input type="text" value={editFormData.state_registration}
+                      onChange={(e) => setEditFormData({ ...editFormData, state_registration: e.target.value })}
+                      className={inputCls} placeholder="State registration number" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Central Registration</label>
+                    <input type="text" value={editFormData.central_registration}
+                      onChange={(e) => setEditFormData({ ...editFormData, central_registration: e.target.value })}
+                      className={inputCls} placeholder="Central registration number" />
+                  </div>
+                  <div>
                     <label className={labelCls}>Status <span className="text-red-500">*</span></label>
                     <select required value={editFormData.status}
                       onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
@@ -1989,6 +2019,18 @@ const Admissions = () => {
                       <option value="Regular">Regular</option>
                       <option value="Student Credit Card">Student Credit Card</option>
                     </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>State Registration</label>
+                    <input type="text" value={manualFormData.state_registration}
+                      onChange={(e) => setManualFormData({ ...manualFormData, state_registration: e.target.value })}
+                      className={inputCls} placeholder="State registration number" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Central Registration</label>
+                    <input type="text" value={manualFormData.central_registration}
+                      onChange={(e) => setManualFormData({ ...manualFormData, central_registration: e.target.value })}
+                      className={inputCls} placeholder="Central registration number" />
                   </div>
                   <div>
                     <label className={labelCls}>Status</label>

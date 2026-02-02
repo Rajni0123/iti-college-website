@@ -628,7 +628,8 @@ exports.updateAdmission = (req, res) => {
     class_10th_percentage, class_10th_subject,
     class_12th_school, class_12th_marks_obtained, class_12th_total_marks,
     class_12th_percentage, class_12th_subject,
-    session, shift, student_credit_card, student_credit_card_details, registration_type
+    session, shift, student_credit_card, student_credit_card_details, registration_type,
+    state_registration, central_registration
   } = req.body;
 
   if (!name || !father_name || !mobile || !trade || !qualification || !category) {
@@ -674,7 +675,8 @@ exports.updateAdmission = (req, res) => {
       district = ?, pincode = ?, block = ?, state = ?, pwd_category = ?, pwd_claim = ?,
       class_10th_school = ?, class_10th_marks_obtained = ?, class_10th_total_marks = ?, class_10th_percentage = ?, class_10th_subject = ?,
       class_12th_school = ?, class_12th_marks_obtained = ?, class_12th_total_marks = ?, class_12th_percentage = ?, class_12th_subject = ?,
-      session = ?, shift = ?, student_credit_card = ?, student_credit_card_details = ?, registration_type = ?`;
+      session = ?, shift = ?, student_credit_card = ?, student_credit_card_details = ?, registration_type = ?,
+      state_registration = ?, central_registration = ?`;
     const params = [
       name, father_name, mother_name || null, mobile, email || null, trade, qualification, category, JSON.stringify(updatedDocs),
       dob || null, gender || null, uidai_number || null,
@@ -686,7 +688,8 @@ exports.updateAdmission = (req, res) => {
       class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
       class_12th_percentage || null, class_12th_subject || null,
       session || null, shift || null,
-      student_credit_card || 'No', student_credit_card_details || null, registration_type || 'Regular'
+      student_credit_card || 'No', student_credit_card_details || null, registration_type || 'Regular',
+      state_registration || null, central_registration || null
     ];
 
     if (normalizedStatus) {
@@ -784,7 +787,8 @@ exports.createManualAdmission = (req, res) => {
       class_10th_percentage, class_10th_subject,
       class_12th_school, class_12th_marks_obtained, class_12th_total_marks,
       class_12th_percentage, class_12th_subject,
-      session, shift, student_credit_card, student_credit_card_details, registration_type
+      session, shift, student_credit_card, student_credit_card_details, registration_type,
+      state_registration, central_registration
     } = req.body;
 
     if (!name || !father_name || !mobile || !trade || !qualification || !category) {
@@ -811,8 +815,9 @@ exports.createManualAdmission = (req, res) => {
         pwd_category, pwd_claim,
         class_10th_school, class_10th_marks_obtained, class_10th_total_marks, class_10th_percentage, class_10th_subject,
         class_12th_school, class_12th_marks_obtained, class_12th_total_marks, class_12th_percentage, class_12th_subject,
-        session, shift, student_credit_card, student_credit_card_details, registration_type
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        session, shift, student_credit_card, student_credit_card_details, registration_type,
+        state_registration, central_registration
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name, father_name, mother_name || null, mobile, email || null, trade, qualification, category,
         documents, admissionStatus,
@@ -825,7 +830,8 @@ exports.createManualAdmission = (req, res) => {
         class_12th_school || null, class_12th_marks_obtained || null, class_12th_total_marks || null,
         class_12th_percentage || null, class_12th_subject || null,
         session || null, shift || null,
-        student_credit_card || 'No', student_credit_card_details || null, regType
+        student_credit_card || 'No', student_credit_card_details || null, regType,
+        state_registration || null, central_registration || null
       ],
       function (err) {
         if (err) {
