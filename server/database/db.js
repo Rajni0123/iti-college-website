@@ -478,6 +478,36 @@ const init = () => {
       }
     });
 
+    // Staff Salaries table
+    db.run(`CREATE TABLE IF NOT EXISTS staff_salaries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      staff_id INTEGER NOT NULL,
+      staff_name TEXT,
+      staff_email TEXT,
+      staff_phone TEXT,
+      staff_role TEXT,
+      month INTEGER NOT NULL,
+      year INTEGER NOT NULL,
+      basic_salary REAL NOT NULL DEFAULT 0,
+      hra REAL DEFAULT 0,
+      da REAL DEFAULT 0,
+      ta REAL DEFAULT 0,
+      bonus REAL DEFAULT 0,
+      other_allowances REAL DEFAULT 0,
+      pf_deduction REAL DEFAULT 0,
+      tax_deduction REAL DEFAULT 0,
+      other_deductions REAL DEFAULT 0,
+      gross_salary REAL DEFAULT 0,
+      net_salary REAL DEFAULT 0,
+      payment_method TEXT DEFAULT 'Cash',
+      payment_date TEXT,
+      slip_number TEXT,
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (staff_id) REFERENCES users(id)
+    )`);
+
     // Flash News table
     db.run(`CREATE TABLE IF NOT EXISTS flash_news (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

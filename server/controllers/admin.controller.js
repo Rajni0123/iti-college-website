@@ -145,22 +145,59 @@ exports.getDashboardStats = (req, res) => {
                                   }));
                                 }
 
-                                // Get recent activities
-                                db.all(`
-                                  SELECT 'notice' as type, title, created_at FROM notices
-                                  UNION ALL
-                                  SELECT 'result' as type, title, created_at FROM results
-                                  UNION ALL
-                                  SELECT 'admission' as type, name as title, created_at FROM admissions
-                                  ORDER BY created_at DESC LIMIT 5
-                                `, [], (err, activities) => {
+                                // Get total students count
+                              db.get('SELECT COUNT(*) as count FROM students WHERE status = "Active"', [], (err, row) => {
+                                if (err) {
+                                  stats.totalStudents = 0;
+                                } else {
+                                  stats.totalStudents = row?.count || 0;
+                                }
+
+                                // Get total fees collected
+                                db.get('SELECT COALESCE(SUM(paid_amount), 0) as total FROM student_fees', [], (err, row) => {
                                   if (err) {
-                                    stats.recentActivities = [];
+                                    stats.totalFeesCollected = 0;
                                   } else {
-                                    stats.recentActivities = activities || [];
+                                    stats.totalFeesCollected = parseFloat(row?.total) || 0;
                                   }
-                                  res.json(stats);
+
+                                  // Get trade-wise seat info
+                                  db.all(`
+                                    SELECT t.id, t.name, t.seats,
+                                      (SELECT COUNT(*) FROM students s WHERE s.trade = t.name AND s.status = 'Active') as enrolled
+                                    FROM trades t WHERE t.is_active = 1
+                                  `, [], (err, trades) => {
+                                    if (err) {
+                                      stats.tradeSeats = [];
+                                    } else {
+                                      stats.tradeSeats = (trades || []).map(t => ({
+                                        id: t.id,
+                                        name: t.name,
+                                        totalSeats: parseInt(t.seats) || 0,
+                                        enrolled: t.enrolled || 0,
+                                        available: Math.max(0, (parseInt(t.seats) || 0) - (t.enrolled || 0))
+                                      }));
+                                    }
+
+                                    // Get recent activities
+                                    db.all(`
+                                      SELECT 'notice' as type, title, created_at FROM notices
+                                      UNION ALL
+                                      SELECT 'result' as type, title, created_at FROM results
+                                      UNION ALL
+                                      SELECT 'admission' as type, name as title, created_at FROM admissions
+                                      ORDER BY created_at DESC LIMIT 5
+                                    `, [], (err, activities) => {
+                                      if (err) {
+                                        stats.recentActivities = [];
+                                      } else {
+                                        stats.recentActivities = activities || [];
+                                      }
+                                      res.json(stats);
+                                    });
+                                  });
                                 });
+                              });
                               });
                             });
                           });
@@ -795,11 +832,16 @@ exports.createManualAdmission = (req, res) => {
       return res.status(400).json({ message: 'Name, father name, mobile, trade, qualification, and category are required' });
     }
 
+    // Handle uploaded files from multer
+    const uploadedFiles = req.files || {};
     const documents = JSON.stringify({
-      photo: null,
-      aadhaar: null,
-      marksheet: null,
-      student_credit_card_doc: null,
+      photo: uploadedFiles.photo?.[0]?.filename || null,
+      aadhaar: uploadedFiles.aadhaar?.[0]?.filename || null,
+      marksheet: uploadedFiles.marksheet_10th?.[0]?.filename || null,
+      marksheet_12th: uploadedFiles.marksheet_12th?.[0]?.filename || null,
+      caste_certificate: uploadedFiles.caste_certificate?.[0]?.filename || null,
+      income_certificate: uploadedFiles.income_certificate?.[0]?.filename || null,
+      student_credit_card_doc: uploadedFiles.student_credit_card_doc?.[0]?.filename || null,
     });
 
     const admissionStatus = status
